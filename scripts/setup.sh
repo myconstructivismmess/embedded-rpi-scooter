@@ -5,11 +5,12 @@ BOLD_START="\033[1m"
 BOLD_END="\033[0m"
 RELATIVE_PATH_FROM_SCRIPT_DIR="../"
 
+SCRIPT_DIR_PATH="${BASH_SOURCE:0:-8}"
+cd "$SCRIPT_DIR_PATH"
+
 # Install packages
 printf "\n${BOLD_START} 1. Installing packages...${BOLD_END}\n\n"
 
-SCRIPT_DIR_PATH="${BASH_SOURCE:0:-8}"
-cd "$SCRIPT_DIR_PATH"
 PACKAGES_FILE_CONTENT="$(<"./data/apt-package-list.txt")"
 PACKAGES="${PACKAGES_FILE_CONTENT//$'\n'/ }"
 IFS=' '
