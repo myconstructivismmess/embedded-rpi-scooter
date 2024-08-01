@@ -66,7 +66,7 @@ while true; do
             1) break 2;;
             2) break 2;;
             $((${#items[@]}+1))) print_step "Aborting" "1:2"; exit 0;;
-            *) printf "Unknown choice \"$REPLY\"\n\n"; break;
+            *) print_bold "Unknown choice \"$REPLY\"\n\n"; break;
         esac
     done
 done
