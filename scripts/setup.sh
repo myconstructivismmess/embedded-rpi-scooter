@@ -43,12 +43,11 @@ python3 -m venv ./scooter-control/.venv/
 # Install python 3 packages
 printf "\n${BOLD_START} 5. Installing python 3 packages...${BOLD_END}\n\n"
 
-PS3="Select a python 3 package list to install: "
+PS3="Select a python 3 package list to install (or select 'Abort' to exit): "
 items=("Development environment package list" "Board environment package list")
 
 while true; do
-    select item in "${items[@]}" Abort
-    do
+    select item in "${items[@]}" Abort; do
         case $REPLY in
             1) break 2;;
             2) break 2;;
