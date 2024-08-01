@@ -1,0 +1,7 @@
+findutils
+libasound2-dev
+screen
+grep
+coreutils
+python3
+python3-pip
