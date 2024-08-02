@@ -14,19 +14,27 @@ check_root
 # Install packages
 print_step "Installing packages" "1:2"
 
-PACKAGES_FILE_CONTENT="$(<"${SCRIPT_DIR_PATH}data/apt-package-list.txt")"
-PACKAGES="${PACKAGES_FILE_CONTENT//$'\n'/ }"
-IFS=' '
-for package in $PACKAGES; do
-  if apt install -y "$package"; then
-    print_bold "\n\"${package}\" installed successfully or already installed.\n\n"
-  else
-    print_bold "\nFailed to install \"${package}\".\n"
+PACKAGES_FILE_PATH="${SCRIPT_DIR_PATH}data/apt-package-list.txt"
+if [ -s "$PACKAGES_FILE_PATH" ]; then
+    PACKAGES_FILE_CONTENT=$(<"$PACKAGES_FILE_PATH")
+    PACKAGES="${PACKAGES_FILE_CONTENT//$'\n'/ }"
+    IFS=' '
+    for package in $PACKAGES; do
+        if apt install -y "$package"; then
+            print_bold "\n\"${package}\" installed successfully or already installed.\n\n"
+        else
+            print_bold "\nFailed to install \"${package}\".\n"
 
+            print_step "Exiting" "1:2"
+            exit 1
+        fi
+    done
+else
+    print_bold "\nNo package to install.\n"
+    
     print_step "Exiting" "1:2"
     exit 1
-  fi
-done
+fi
 
 
 
@@ -34,8 +42,14 @@ done
 print_step "Making other scripts executable" "0:2"
 
 find "$SCRIPT_DIR_PATH" -maxdepth 1 -type f -name "*.sh" | while IFS= read -r file; do
-	chmod +x "$file"
-    print_bold "Added executable permission to file \"$(basename "$file")\".\n"
+	if chmod +x "$file"; then
+        print_bold "Added executable permission to file \"$(basename "$file")\".\n"
+    else
+        print_bold "Failed to add executable permission to file \"$(basename "$file")\".\n"
+        
+        print_step "Exiting" "1:2"
+        exit 1
+    fi
 done
 
 
@@ -43,14 +57,24 @@ done
 # Set working location to project root directory
 print_step "Setting working location to project root directory"
 
-cd_to_project_root "$SCRIPT_DIR_PATH"
+if ! cd_to_project_root "$SCRIPT_DIR_PATH"; then
+    print_bold "Failed to set working location to project root directory.\n"
+    
+    print_step "Exiting" "1:2"
+    exit 1
+fi
 
 
 
 # Create python 3 virtual environment
 print_step "Creating python 3 virtual environment"
 
-python3 -m venv "./scooter-control/.venv/"
+if ! python3 -m venv "./scooter-control/.venv/"; then
+    print_bold "Failed to create Python 3 virtual environment.\n"
+
+    print_step "Exiting" "1:2"
+    exit 1
+fi
 
 
 
@@ -74,9 +98,19 @@ done
 printf "\n"
 
 if [ "$REPLY" -eq "1" ]; then
-    sudo ./scooter-control/.venv/bin/pip3 install -r "$(realpath "$SCRIPT_DIR_PATH")/data/python_package_lists/development_environment_requirements.txt"
+    if ! ./scooter-control/.venv/bin/pip3 install -r "$(realpath "$SCRIPT_DIR_PATH")/data/python_package_lists/development_environment_requirements.txt"; then
+        print_bold "\nFailed to install development environment packages.\n"
+
+        print_step "Exiting" "1:2"
+        exit 1
+    fi
 elif [ "$REPLY" -eq "2" ]; then
-    sudo ./scooter-control/.venv/bin/pip3 install -r "$(realpath "$SCRIPT_DIR_PATH")/data/python_package_lists/board_environment_requirements.txt"
+    if ! ./scooter-control/.venv/bin/pip3 install -r "$(realpath "$SCRIPT_DIR_PATH")/data/python_package_lists/board_environment_requirements.txt"; then
+        print_bold "\nFailed to install board environment packages.\n"
+
+        print_step "Exiting" "1:2"
+        exit 1
+    fi
 fi
 
 
