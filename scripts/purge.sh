@@ -14,23 +14,40 @@ check_root
 # Set working location to project root directory
 print_step "Setting working location to project root directory"
 
-cd_to_project_root "$SCRIPT_DIR_PATH"
+if ! cd_to_project_root "$SCRIPT_DIR_PATH"; then
+    print_bold "Failed to set working location to project root directory.\n"
+    
+    print_step "Exiting" "1:2"
+    exit 1
+fi
 
 
 
 # Remove python 3 virtual environment
 print_step "Removing python 3 virtual environment"
 
-sudo rm -rf ./scooter-control/.venv/
+if ! rm -rf "./scooter-control/.venv/"; then
+    print_bold "Failed to remove python 3 virtual environment.\n"
+
+    print_step "Exiting" "1:2"
+    exit 1
+fi
 
 
 
 # Remove python 3 cache directories
 print_step "Removing python 3 cache"
 
-find ./scooter-control/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+if ! find "./scooter-control/" | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf; then
+    print_bold "Failed to remove python 3 cache.\n"
+
+    print_step "Exiting" "1:2"
+    exit 1
+fi
 
 
 
 # Finishing
 print_step "Finishing" "1:2"
+
+exit 0
