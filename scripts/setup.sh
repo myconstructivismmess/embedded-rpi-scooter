@@ -21,9 +21,9 @@ for package in $PACKAGES; do
   if apt install -y "$package"; then
     print_bold "\n\"${package}\" installed successfully or already installed.\n\n"
   else
-    print_bold "\nFailed to install \"${package}\".\n\n"
-    print_step "Aborting" "0:2"
+    print_bold "\nFailed to install \"${package}\".\n"
 
+    print_step "Exiting" "1:2"
     exit 1
   fi
 done
@@ -50,7 +50,7 @@ cd_to_project_root "$SCRIPT_DIR_PATH"
 # Create python 3 virtual environment
 print_step "Creating python 3 virtual environment"
 
-python3 -m venv ./scooter-control/.venv/
+python3 -m venv "./scooter-control/.venv/"
 
 
 
@@ -58,10 +58,10 @@ python3 -m venv ./scooter-control/.venv/
 print_step "Installing python 3 packages" "1:2"
 
 PS3="Select a python 3 package list to install (or select 'Abort' to exit): "
-items=("Development environment package list" "Board environment package list")
+PYTHON3_PACKAGE_LISTS=("Development environment package list" "Board environment package list")
 
 while true; do
-    select item in "${items[@]}" Abort; do
+    select item in "${PYTHON3_PACKAGE_LISTS[@]}" Abort; do
         case $REPLY in
             1) break 2;;
             2) break 2;;
@@ -83,3 +83,5 @@ fi
 
 # Finishing
 print_step "Finishing" "1:2"
+
+exit 0
