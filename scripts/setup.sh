@@ -41,7 +41,7 @@ fi
 # Make every other scripts in this directory executable
 print_step "Making other scripts executable" "0:2"
 
-find "${SCRIPT_DIR_PATH}" -maxdepth 1 -type f -name "*.sh" | while IFS= read -r FILE; do
+find "${SCRIPT_DIR_PATH}" -type f -name "*.sh" | while IFS= read -r FILE; do
 	if chmod +x "${FILE}"; then
         print_bold "Added executable permission to file \"$(basename "${FILE}")\".\n"
     else
