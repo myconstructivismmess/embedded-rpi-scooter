@@ -19,10 +19,10 @@ DEVICES=($(sudo ls "/dev/" | grep -o 'ttyUSB[0-9]*' || true))
 
 
 # Finishing if no devices found
-if [ -z "$DEVICES" ]; then
+if [ -z "${DEVICES}" ]; then
     print_bold "\nNo device found.\n"
+    
     print_step "Finishing" "1:2"
-
     exit 0
 fi
 
@@ -32,13 +32,14 @@ fi
 print_step "Connecting to a device" "1:2"
 
 PS3="Select a device to connect to (or select 'Abort' to exit): "
+
 while true; do
     select DEVICE in "${DEVICES[@]}" Abort; do
         if [[ $REPLY -eq $((${#DEVICES[@]} + 1)) ]]; then
             print_step "Aborting" "1:2"
             exit 0
         elif [[ $REPLY -lt 1 || $REPLY -gt $((${#DEVICES[@]} + 1)) ]]; then
-            print_bold "Unknown choice \"$REPLY\"\n\n"
+            print_bold "Unknown choice \"${REPLY}\"\n\n"
         else
             break 2
         fi
