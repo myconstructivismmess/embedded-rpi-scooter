@@ -2,7 +2,7 @@
 from typing import Callable
 
 # Project Imports
-from _ButtonHandlerBase import ButtonHandlerBase
+from ._button_handler_base import ButtonHandlerBase
 
 # Main
 class LatchButtonHandler(ButtonHandlerBase):
@@ -13,7 +13,7 @@ class LatchButtonHandler(ButtonHandlerBase):
         self._on_value_changed: Callable[[bool], None] = on_value_changed
 
     def on_value_raised(self) -> None:
-        if self._enabled:
+        if self.enabled:
             self.set_value(not self._value)
     def on_value_recessed(self) -> None:
         pass

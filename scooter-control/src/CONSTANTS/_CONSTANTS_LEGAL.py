@@ -1,2 +1,0 @@
-# Main
-TURN_SIGNAL_COLOR = (255, 165, 0)

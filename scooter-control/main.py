@@ -1,14 +1,14 @@
 # Python Imports
 import sys
+import os
 from enum import Enum
 
 # Packages Imports
 #from neopixel import NeoPixel, GRB
 
 # Project Imports
-import utils
-from types import *
-import CONSTANTS
+from program import Program
+from utils import add_keyboard_interceptor_if_enabled, add_gpio_pin_interceptor_if_enabled, Timer, TimerHandler, BoardPin
 from Button import ButtonBuilder, Button, Handlers as ButtonHandlers
 
 # Debug Parameters
@@ -17,6 +17,7 @@ ENABLE_GPIO_PIN_BUTTONS = False
 
 PRINT_TURN_SIGNAL_VALUE_CHANGES = True
 PRINT_LIGHT_ON_OFF_VALUE_CHANGES = True
+PRINT_HORN_SOUND_TRIGGERING = True
 
 # Types
 class TurnSignalStateType(Enum):
@@ -25,9 +26,11 @@ class TurnSignalStateType(Enum):
     RIGHT = 3
 
 # Main
-class Main:
+class ScooterControl(Program):
+    # Events
     def _on_turn_signal_button_value_changed(self, is_left_side: bool, state: bool) -> None:
         if state:
+            if self._turn_signal_state == TurnSignalStateType.LEFT
             self._turn_signal_state = TurnSignalStateType.LEFT if is_left_side else TurnSignalStateType.RIGHT
             if is_left_side:
                 self._turn_right_signal_button_handler.set_value(False, False)
@@ -35,7 +38,6 @@ class Main:
                 self._turn_left_signal_button_handler.set_value(False, False)
         else:
             self._turn_signal_state = TurnSignalStateType.NONE
-        
         if PRINT_TURN_SIGNAL_VALUE_CHANGES:
             print(f"INFO: TURN_SIGNAL: Value changed to {self._turn_signal_state.name}")
 
@@ -43,16 +45,23 @@ class Main:
         if PRINT_LIGHT_ON_OFF_VALUE_CHANGES:
             print(f"INFO: LIGHT_ON_OFF: Value changed to {state}")
 
+    def _on_horn_button_sequence_end(self, id: int) -> None:
+        pass
+
+    def _on_horn_button_released_after_sequenceend(self) -> None:
+        pass
+
+    # Initialization
     def _create_horn_button(self) -> None:
         builder: ButtonBuilder = ButtonBuilder()
 
-        utils.button.add_keyboard_interceptor_if_enabled(
+        add_keyboard_interceptor_if_enabled(
             builder,
             "h",
             ENABLE_DEVELOPMENT_KEYBOARD_BUTTONS
         )
 
-        utils.button.add_gpio_pin_interceptor_if_enabled(
+        add_gpio_pin_interceptor_if_enabled(
             builder,
             CONSTANTS.PIN.HORN_BUTTON,
             ENABLE_GPIO_PIN_BUTTONS
@@ -64,13 +73,13 @@ class Main:
     def _create_turn_left_signal_button(self) -> None:
         builder: ButtonBuilder = ButtonBuilder()
 
-        utils.button.add_keyboard_interceptor_if_enabled(
+        add_keyboard_interceptor_if_enabled(
             builder,
             "j",
             ENABLE_DEVELOPMENT_KEYBOARD_BUTTONS
         )
 
-        utils.button.add_gpio_pin_interceptor_if_enabled(
+        add_gpio_pin_interceptor_if_enabled(
             builder,
             CONSTANTS.PIN.TURN_LEFT_SIGNAL_BUTTON,
             ENABLE_GPIO_PIN_BUTTONS
@@ -82,13 +91,13 @@ class Main:
     def _create_turn_right_signal_button(self) -> None:
         builder: ButtonBuilder = ButtonBuilder()
 
-        utils.button.add_keyboard_interceptor_if_enabled(
+        add_keyboard_interceptor_if_enabled(
             builder,
             "k",
             ENABLE_DEVELOPMENT_KEYBOARD_BUTTONS
         )
 
-        utils.button.add_gpio_pin_interceptor_if_enabled(
+        add_gpio_pin_interceptor_if_enabled(
             builder,
             CONSTANTS.PIN.TURN_RIGHT_SIGNAL_BUTTON,
             ENABLE_GPIO_PIN_BUTTONS
@@ -100,13 +109,13 @@ class Main:
     def _create_light_on_off_button(self) -> None:
         builder: ButtonBuilder = ButtonBuilder()
 
-        utils.button.add_keyboard_interceptor_if_enabled(
+        add_keyboard_interceptor_if_enabled(
             builder,
             "l",
             ENABLE_DEVELOPMENT_KEYBOARD_BUTTONS
         )
 
-        utils.button.add_gpio_pin_interceptor_if_enabled(
+        add_gpio_pin_interceptor_if_enabled(
             builder,
             CONSTANTS.PIN.LIGHT_ON_OFF_BUTTON,
             ENABLE_GPIO_PIN_BUTTONS
@@ -116,8 +125,12 @@ class Main:
         self._light_on_off_button: Button = builder.build()
 
     def __init__(self) -> None:
+        # Timer
+        self._timer: Timer = Timer()
+
         # Turn Signal
         self._turn_signal_state: TurnSignalStateType = TurnSignalStateType.NONE
+        self._turn_signal_timer_handler: TimerHandler = self._timer.create_handler()
 
         # Buttons
         self._create_horn_button()
@@ -125,15 +138,13 @@ class Main:
         self._create_turn_right_signal_button()
         self._create_light_on_off_button()
 
-        # Exit
-        self._should_exit: bool = False
-
-    @property
-    def should_exit(self) -> bool:
-        return self._should_exit
-
+    # Update
     def update(self):
-        pass
+        self._timer.update()
+        self._horn_button.update()
+        self._turn_left_signal_button.update()
+        self._turn_right_signal_button.update()
+        self._light_on_off_button.update()
 
 
 if __name__ == "__main__":
@@ -141,9 +152,10 @@ if __name__ == "__main__":
         print("ERROR: This script requires at least python version 3")
         sys.exit(1)
     
-    main = Main()
+    scooter_control = ScooterControl()
+
     while True:
-        if main.should_exit:
+        if scooter_control.should_exit:
             break
 
-        main.update()
+        scooter_control.update()

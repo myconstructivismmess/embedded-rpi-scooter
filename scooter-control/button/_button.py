@@ -4,7 +4,7 @@ from typing import List, Dict
 # Project Imports
 from _ButtonInterceptors import ButtonInterceptorBase
 from _ButtonHandlers import ButtonHandlerBase
-from _ButtonTypes import ButtonOptionsType
+from ._button_options_type import ButtonOptionsType
 
 # Main
 class Button:

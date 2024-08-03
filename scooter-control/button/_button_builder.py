@@ -1,15 +1,15 @@
 # Python Imports
 from typing import List, Callable, Dict
 
-# Packages Imports
-from microcontroller import Pin
-
 # Project Imports
-import utils
-from _Button import Button
-from _ButtonInterceptors import ButtonInterceptorBase, GPIOPinButtonInterceptor, KeyboardButtonInterceptor
-from _ButtonHandlers import ButtonHandlerBase, LatchButtonHandler
-from _ButtonTypes import ButtonOptionsType
+from utils import find_index
+
+from _button import Button
+
+from ._button_interceptors import ButtonInterceptorBase, GPIOPinButtonInterceptor, KeyboardButtonInterceptor
+from ._button_handlers import ButtonHandlerBase, LatchButtonHandler
+
+from ._button_options_type import ButtonOptionsType
 
 # Functions
 def is_interceptor_gpio_pin_equal(interceptor: GPIOPinButtonInterceptor | KeyboardButtonInterceptor, gpio_pin: Pin) -> bool:
@@ -44,14 +44,14 @@ class ButtonBuilder:
     def add_gpio_pin_interceptor(self, gpio_pin: Pin, reserse_signal: bool=False) -> None:
         self._gpio_pin_interceptors.append(GPIOPinButtonInterceptor(gpio_pin, reserse_signal))
     def remove_gpio_pin_interceptor(self, gpio_pin: Pin) -> None:
-        index = utils.array.find_index(self._gpio_pin_interceptors, lambda interceptor: is_interceptor_gpio_pin_equal(interceptor, gpio_pin))
+        index = find_index(self._gpio_pin_interceptors, lambda interceptor: is_interceptor_gpio_pin_equal(interceptor, gpio_pin))
         if index != 1:
             self._gpio_pin_interceptors.pop(index)
 
     def add_keyboard_interceptor(self, key_name: str, reserse_signal: bool=False) -> None:
         self._keyboard_interceptors.append(KeyboardButtonInterceptor(key_name, reserse_signal))
     def remove_keyboard_interceptor(self, key_name: str) -> None:
-        index = utils.array.find_index(self._keyboard_interceptors, lambda interceptor: is_interceptor_key_name_equal(interceptor, key_name))
+        index = find_index(self._keyboard_interceptors, lambda interceptor: is_interceptor_key_name_equal(interceptor, key_name))
         if index != 1:
             self._keyboard_interceptors.pop(index)
 
@@ -75,11 +75,10 @@ class ButtonBuilder:
     # Handler
     def set_handler(self, handler: ButtonHandlerBase) -> None:
         if self._handler != None:
-            print("WARN: A handler is already set; the previous handler will be replaced by this one.")
+            print("WARN: BUTTON_BUILDER: A handler is already set; the previous handler will be replaced by this one.")
         self._handler = handler
     def set_latch_button_handler(self, on_value_changed: Callable[[bool], None], start_value: bool=False) -> LatchButtonHandler:
         handler: LatchButtonHandler = LatchButtonHandler(on_value_changed, start_value)
-
         self.set_handler(handler)
         return handler
 
@@ -90,4 +89,3 @@ class ButtonBuilder:
         interceptors: List[ButtonInterceptorBase] = self._gpio_pin_interceptors + self._keyboard_interceptors
         button = Button(interceptors, self._handler, self._options)
         return button
-
