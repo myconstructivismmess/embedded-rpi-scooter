@@ -14,6 +14,7 @@ assert_root() {
 }
 
 
+
 # Changes the current directory to the project's root directory based on a relative path.
 # Arguments:
 #   $1 - The current script directory path.
@@ -169,4 +170,34 @@ print_bold() {
     local text="$1"
 
     printf "${BOLD_START}%b${BOLD_END}" "$text"
+}
+
+
+
+# Presents a list of choices to the user with an option to abort the selection process.
+#              Captures the selected option's index and outputs it to a specified file descriptor.
+# Arguments:
+#   $1 - The prompt string to display to the user.
+#   $2 - $N - The list of choices presented to the user for selection.
+# Output: Outputs the index of the selected choice to file descriptor 3.
+select_option_with_abort() {
+    local prompt="$1"
+    shift
+    local choices=("$@")
+
+    local PS3="${prompt} (or select 'Abort' to exit): "
+    while true; do
+        local choice
+        local REPLY
+        select choice in "${choices[@]}" "Abort"; do
+            if [[ "${REPLY}" -lt 1 || "${REPLY}" -gt "$((${#choices[@]} + 1))" ]]; then
+                print_bold "Unknown choice \"${REPLY}\"\n\n"
+            elif [[ "${choice}" == "Abort" ]]; then
+                print_abort_step_and_exit
+            elif [[ -n "${choice}" ]]; then
+                echo "${REPLY}" >&3
+                break 2
+            fi
+        done
+    done
 }
