@@ -4,6 +4,8 @@ ENV_FILE_PATH_FROM_PROJECT_ROOT=".env"
 
 
 
+# Ensures the script is run with root privileges.
+# Output: Prints an error message and exits if the script is not run with root privileges.
 assert_root() {
     if [[ $(/usr/bin/id -u) -ne 0 ]]; then
         print_bold "Please run this script as root.\n"
@@ -12,7 +14,10 @@ assert_root() {
 }
 
 
-
+# Changes the current directory to the project's root directory based on a relative path.
+# Arguments:
+#   $1 - The current script directory path.
+# Output: Changes the current working directory to the project's root directory.
 cd_to_project_root() {
     local script_dir_path="$1"
     cd "${script_dir_path}${RELATIVE_PATH_TO_PROJECT_ROOT}"
@@ -20,54 +25,69 @@ cd_to_project_root() {
 
 
 
-env_file_exists() {
+# Reads a file, removes lines that start with comments and strips out comments after useful content, then trims whitespace.
+# Arguments:
+#   $1 - Path to the file to be read.
+# Output: Prints lines without comments and with trimmed whitespace.
+read_file_without_comments() {
+    local file_path="$1"
+
+    while IFS= read -r line || [ -n "${line}" ]; do
+        # Remove leading and trailing whitespace
+        line="$(echo "${line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+        # Remove comments and trim again in case there was a comment
+        line="$(echo "${line}" | sed 's/#.*$//;s/[[:space:]]*$//')"
+        # Skip the line if it is empty or a comment
+        if [[ -n "${line}" ]]; then
+            echo "${line}"
+        fi
+    done < "${file_path}"
+}
+
+
+
+# Checks if the .env file exists in the current directory.
+# Output: Prints an error message and exits if the .env file is not found.
+assert_env_file_exists() {
     if [ ! -f ".env" ]; then
         print_bold "\nThe .env file does not exist.\n"
 
         print_exit_step_and_exit
     fi
 }
+# Loads environment variables from a .env file, ensuring they are exported with a specific prefix.
+# Output: Exports environment variables defined in the .env file with a prefix "ENV_PROPERTY_".
 load_env_variables() {
     # Check if the .env file exists (prevent problems if env_file_exists is not called)
-    env_file_exists
+    assert_env_file_exists
 
     # Enable automatic export of all variables
     set -a
 
-    # Source the .env file line by line
-    while IFS= read -r line || [ -n "${line}" ]; do
-    # Remove leading and trailing whitespaces
-    line=$(echo "${line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    # Process the .env file using read_file_without_comments
+    while IFS= read -r line; do
+        # Skip lines that are empty
+        if [[ -z "${line}" ]]; then
+            continue
+        fi
 
-    # Skip empty lines and lines starting with a comment
-    if [[ -z "${line}" || "${line}" == \#* ]]; then
-        continue
-    fi
+        # Extract key and value
+        key=$(echo "${line}" | cut -d '=' -f 1)
+        value=$(echo "${line}" | cut -d '=' -f 2-)
 
-    # Remove comments after the variable definition
-    line=$(echo "${line}" | sed 's/[[:space:]]*#.*//')
+        # Remove leading and trailing whitespaces from key and value
+        key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        value=$(echo "${value}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-    # Extract key and value
-    key=$(echo "${line}" | cut -d '=' -f 1)
-    value=$(echo "${line}" | cut -d '=' -f 2-)
+        # Remove surrounding quotes from value if they exist
+        value=$(echo "${value}" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
 
-    # Remove leading and trailing whitespaces from key and value
-    key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    value=$(echo "${value}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        # Add the prefix to the variable name
+        new_key="ENV_PROPERTY_${key}"
 
-    # Remove surrounding quotes from value if they exist
-    if [[ "${value}" == \"*\" && "${value}" == *\" ]]; then
-        value=$(echo "${value}" | sed 's/^"//;s/"$//')
-    elif [[ "${value}" == \'*\' && "${value}" == *\' ]]; then
-        value=$(echo "${value}" | sed "s/^'//;s/'$//")
-    fi
-
-    # Add the prefix to the variable name
-    new_key="ENV_PROPERTY_${key}"
-
-    # Export the new variable with the same value
-    export "${new_key}"="${value}"
-    done < .env
+        # Export the new variable with the same value
+        export "${new_key}"="${value}"
+    done < <(read_file_without_comments .env)
 
     # Disable automatic export
     set +a
@@ -75,6 +95,11 @@ load_env_variables() {
 
 
 
+# Prints a formatted step message with a specified number of newlines before and after the message.
+# Arguments:
+#   $1 - The text of the step to be printed.
+#   $2 - The format for newlines, specified as "before:after", where both before and after are counts of newlines.
+# Output: Prints the step text with the specified formatting and increments the step number.
 print_step() {
     local step_text="$1"
     local step_newline_format="$2"
@@ -112,14 +137,20 @@ print_step() {
 
 
 
+# Prints a formatted "Aborting" step message and exits with a status code of 0.
+# Output: Prints the "Aborting" message and exits the script.
 print_abort_step_and_exit() {
     print_step "Aborting" "1:2"
     exit 0
 }
+# Prints a formatted "Finishing" step message and exits with a status code of 0.
+# Output: Prints the "Finishing" message and exits the script.
 print_finish_step_and_exit() {
     print_step "Finishing" "1:2"
     exit 0
 }
+# Prints a formatted "Exiting" step message and exits with a status code of 1.
+# Output: Prints the "Exiting" message and exits the script with an error status.
 print_exit_step_and_exit() {
     print_step "Exiting" "1:2"
     exit 1
@@ -127,6 +158,10 @@ print_exit_step_and_exit() {
 
 
 
+# Prints the provided text in bold using predefined formatting.
+# Arguments:
+#   $1 - The text to be printed in bold.
+# Output: Prints the text surrounded by bold formatting.
 print_bold() {
     local text="$1"
     printf "${BOLD_START}%b${BOLD_END}" "$text"
