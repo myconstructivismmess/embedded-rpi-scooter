@@ -20,6 +20,7 @@ assert_root() {
 # Output: Changes the current working directory to the project's root directory.
 cd_to_project_root() {
     local script_dir_path="$1"
+    
     cd "${script_dir_path}${RELATIVE_PATH_TO_PROJECT_ROOT}"
 }
 
@@ -32,6 +33,7 @@ cd_to_project_root() {
 read_file_without_comments() {
     local file_path="$1"
 
+    local line
     while IFS= read -r line || [ -n "${line}" ]; do
         # Remove leading and trailing whitespace
         line="$(echo "${line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
@@ -65,6 +67,7 @@ load_env_variables() {
     set -a
 
     # Process the .env file using read_file_without_comments
+    local line
     while IFS= read -r line; do
         # Skip lines that are empty
         if [[ -z "${line}" ]]; then
@@ -72,8 +75,8 @@ load_env_variables() {
         fi
 
         # Extract key and value
-        key=$(echo "${line}" | cut -d '=' -f 1)
-        value=$(echo "${line}" | cut -d '=' -f 2-)
+        local key=$(echo "${line}" | cut -d '=' -f 1)
+        local value=$(echo "${line}" | cut -d '=' -f 2-)
 
         # Remove leading and trailing whitespaces from key and value
         key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
@@ -164,5 +167,6 @@ print_exit_step_and_exit() {
 # Output: Prints the text surrounded by bold formatting.
 print_bold() {
     local text="$1"
+
     printf "${BOLD_START}%b${BOLD_END}" "$text"
 }
