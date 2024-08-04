@@ -1,17 +1,23 @@
 BOLD_START="\033[1m"
 BOLD_END="\033[0m"
 
-check_root() {
+
+
+assert_root() {
     if [[ $(/usr/bin/id -u) -ne 0 ]]; then
         print_bold "Please run this script as root.\n"
         exit 1
     fi
 }
 
+
+
 cd_to_project_root() {
     local script_dir_path="$1"
     cd "${script_dir_path}${RELATIVE_PATH_TO_PROJECT_ROOT}"
 }
+
+
 
 print_step() {
     local step_text="$1"
@@ -47,6 +53,20 @@ print_step() {
     # Increment the step number
     ((step_number++))
 }
+print_abort_step_and_exit() {
+    print_step "Aborting" "1:2"
+    exit 0
+}
+print_finish_step_and_exit() {
+    print_step "Finishing" "1:2"
+    exit 0
+}
+print_exit_step_and_exit() {
+    print_step "Exiting" "1:2"
+    exit 1
+}
+
+
 
 print_bold() {
     local text="$1"
