@@ -1,5 +1,6 @@
 BOLD_START="\033[1m"
 BOLD_END="\033[0m"
+ENV_FILE_PATH_FROM_PROJECT_ROOT=".env"
 
 
 
@@ -15,6 +16,61 @@ assert_root() {
 cd_to_project_root() {
     local script_dir_path="$1"
     cd "${script_dir_path}${RELATIVE_PATH_TO_PROJECT_ROOT}"
+}
+
+
+
+env_file_exists() {
+    if [ ! -f ".env" ]; then
+        print_bold "\nThe .env file does not exist.\n"
+
+        print_exit_step_and_exit
+    fi
+}
+load_env_variables() {
+    # Check if the .env file exists (prevent problems if env_file_exists is not called)
+    env_file_exists
+
+    # Enable automatic export of all variables
+    set -a
+
+    # Source the .env file line by line
+    while IFS= read -r line || [ -n "${line}" ]; do
+    # Remove leading and trailing whitespaces
+    line=$(echo "${line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    # Skip empty lines and lines starting with a comment
+    if [[ -z "${line}" || "${line}" == \#* ]]; then
+        continue
+    fi
+
+    # Remove comments after the variable definition
+    line=$(echo "${line}" | sed 's/[[:space:]]*#.*//')
+
+    # Extract key and value
+    key=$(echo "${line}" | cut -d '=' -f 1)
+    value=$(echo "${line}" | cut -d '=' -f 2-)
+
+    # Remove leading and trailing whitespaces from key and value
+    key=$(echo "${key}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    value=$(echo "${value}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    # Remove surrounding quotes from value if they exist
+    if [[ "${value}" == \"*\" && "${value}" == *\" ]]; then
+        value=$(echo "${value}" | sed 's/^"//;s/"$//')
+    elif [[ "${value}" == \'*\' && "${value}" == *\' ]]; then
+        value=$(echo "${value}" | sed "s/^'//;s/'$//")
+    fi
+
+    # Add the prefix to the variable name
+    new_key="ENV_PROPERTY_${key}"
+
+    # Export the new variable with the same value
+    export "${new_key}"="${value}"
+    done < .env
+
+    # Disable automatic export
+    set +a
 }
 
 
@@ -53,6 +109,9 @@ print_step() {
     # Increment the step number
     ((step_number++))
 }
+
+
+
 print_abort_step_and_exit() {
     print_step "Aborting" "1:2"
     exit 0
