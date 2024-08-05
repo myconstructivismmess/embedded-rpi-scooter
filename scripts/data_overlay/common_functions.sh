@@ -123,7 +123,11 @@ assert_data_overlay_directory_exists() {
         print_exit_step_and_exit
     fi
 }
-purge_data_overlay() {
+# Purges the data overlay by recursively processing the .cache directory within the data_overlay directory,
+#              removing directories marked for deletion and ultimately deleting the .cache directory itself.
+# Arguments: None
+# Output: Prints the status of each processed directory and whether it was deleted.
+purge_data_overlay() { # TODO: Improve error handling and security
     # Check if the data_overlay directory exists
     assert_data_overlay_directory_exists
 
@@ -132,91 +136,20 @@ purge_data_overlay() {
         return
     fi
 
-    relative_directory_paths_to_purge=(
-        ""
-    )
-
-    while [ "${#relative_directory_paths_to_purge[@]}" -gt 0 ]; do
-        # Get the source directory paths
-        relative_directory_path_src="${relative_directory_paths_to_purge[0]}"
-        absolute_directory_path_src="$(pwd)/data_overlay/${relative_directory_path_src}"
-
-        # Get the destination directory paths
-        relative_directory_path_dst_eval="$(echo "${relative_directory_path_src}" | sed 's/{/${ENV_PROPERTY_/g')"
-        relative_directory_path_dst="$(eval "echo ${relative_directory_path_dst_eval}")"
-        absolute_directory_path_dst="/${relative_directory_path_dst}"
-
-        # Get the directories in the source directory and destination directory
-        directories_in_directory=($(get_directories_in_path "${absolute_directory_path_src}"))
-        directories_in_dst_directory=($(get_directories_in_path "${absolute_directory_path_dst}"))
-
-        # Remove the current directory from the list and add to it's childs
-        relative_directory_paths_to_purge=("${relative_directory_paths_to_purge[@]:1}")
-        for directory in "${directories_in_directory[@]}"; do
-            relative_directory_paths_to_purge+=("${relative_directory_path_src}${directory}/")
-        done
-
-        # Check if the REMOVE_DIRECTORY_ON_PURGE file exists
-        remove_content_on_copy="$(path_contains_remove_flag "${absolute_directory_path_src}")"
-
-        # Start printing the path information
-        print_bold "\nNavigating to './data_overlay/${relative_directory_path_src}'\n"
-
-        # Create the destination directory if it does not exist and generate the text to print
-        if [ -d "${absolute_directory_path_dst}" ]; then
-            exist_text="True"
-        else
-            exist_text="False"
-            mkdir -p "${absolute_directory_path_dst}"
-        fi
-
-        # Remove the content of the destination directory if the REMOVE_CONTENT_ON_COPY file exists and generate the text to print
-        if [ "${remove_content_on_copy}" = true ]; then
-            remove_content_on_copy_text="True"
-            sudo rm -rf "${absolute_directory_path_dst}"/*
-        else
-            remove_content_on_copy_text="False"
-        fi
-
-        # Print the path information
-        print_bold "\tTarget directory: '${absolute_directory_path_dst}'  Exists: ${exist_text}  Remove content: ${remove_content_on_copy_text}\n"
-        
-        # Print the directories that will be added to the purge process
-        for directory in "${directories_in_directory[@]}"; do
-            print_bold "\tAdded sub-directory '${directory}' to the purge process.\n"
-        done
-
-        # Copy the files
-        for file in "${files_in_directory[@]}"; do
-            print_bold "\tCopying the file '${file}'.\n"
-            cp "${absolute_directory_path_src}${file}" "${absolute_directory_path_dst}${file}"
-        done
-    done
-}
-copy_data_overlay() {
-    # Check if the data_overlay directory exists
-    assert_data_overlay_directory_exists
-
-    # Check if the data_overlay cache directory exists and create it if it does not
-    if [ ! -d "./data_overlay/.cache/" ]; then
-        mkdir "./data_overlay/.cache/"
-    fi
-
     # Create the array to store the relative directories paths to process
-    relative_directory_paths_to_copy=(
+    relative_directory_paths_to_process=(
         ""
     )
+
     # Iterate through the directories in the data_overlay directory until all directories are processed
-    while [ "${#relative_directory_paths_to_copy[@]}" -gt 0 ]; do
+    while [ "${#relative_directory_paths_to_process[@]}" -gt 0 ]; do
         # Get the source directory paths
-        relative_directory_path_src="${relative_directory_paths_to_copy[0]}"
-        absolute_directory_path_src="$(pwd)/data_overlay/${relative_directory_path_src}"
+        relative_directory_path_src="${relative_directory_paths_to_process[0]}"
+        absolute_directory_path_src="$(pwd)/data_overlay/.cache/${relative_directory_path_src}"
 
         # Get the destination directory paths
-        relative_directory_path_dst_eval="$(echo "${relative_directory_path_src}" | sed 's/{/${ENV_PROPERTY_/g')"
-        relative_directory_path_dst="$(eval "echo ${relative_directory_path_dst_eval}")"
+        relative_directory_path_dst="${relative_directory_path_src}"
         absolute_directory_path_dst="/${relative_directory_path_dst}"
-
 
 
         # Get the files and directories names that are not ignored in the source directory
@@ -224,56 +157,157 @@ copy_data_overlay() {
         directories_in_directory=($(get_directories_in_path "${absolute_directory_path_src}"))
 
 
-
-        # Remove the current directory from the list and add to it's childs
-        relative_directory_paths_to_copy=("${relative_directory_paths_to_copy[@]:1}")
-        for directory in "${directories_in_directory[@]}"; do
-            relative_directory_paths_to_copy+=("${relative_directory_path_src}${directory}/")
-        done
-
-
-
-        # Check if the remove flag file exists
+        # Check if the remove flag is set
         remove_flag="$(path_contains_remove_flag "${absolute_directory_path_src}")"
 
 
+        # Remove the current directory from the list of directories to process and add it's children if the remove flag is not set
+        relative_directory_paths_to_process=("${relative_directory_paths_to_process[@]:1}")
+        if [ ! "${remove_flag}" = true ]; then
+            for directory in "${directories_in_directory[@]}"; do
+                relative_directory_paths_to_process+=("${relative_directory_path_src}${directory}/")
+            done
+        fi
 
-        # Start printing the path information
-        print_bold "\nProcessing './data_overlay/${relative_directory_path_src}'\n"
 
-        # Create the destination directory if it does not exist and generate the text to print
+        # Check if the destination directory exists
         if [ -d "${absolute_directory_path_dst}" ]; then
-            exist_text="True"
+            destination_directory_exists=true
         else
-            exist_text="False"
-            mkdir -p "${absolute_directory_path_dst}"
+            destination_directory_exists=false
         fi
 
-        # Create the cache directory if it does not exist
-        if [ ! -d "./data_overlay/.cache/${relative_directory_path_dst}" ]; then
-            mkdir -p "./data_overlay/.cache/${relative_directory_path_dst}"
+
+        # Delete the destination directory if the remove flag is set and the destination directory exists
+        if [ "${remove_flag}" = true -a "${destination_directory_exists}" = true ]; then
+            rm -rf "${absolute_directory_path_dst}"
         fi
 
-        # Remove the content of the destination directory if the REMOVE_CONTENT_ON_COPY file exists and generate the text to print
-        if [ "${remove_flag}" = true ]; then
-            remove_flag="True"
-            sudo rm -rf "${absolute_directory_path_dst}"/*
-        else
-            remove_flag="False"
-        fi
 
-        # Print the path information
-        print_bold "\tTarget directory: '${absolute_directory_path_dst}'  Exists: ${exist_text}  Remove content: ${remove_content_on_copy_text}\n"
-        
-        # Print the directories that will be added to the copy process
+        # Start printing directory information
+        print_bold "\nProcessing './data_overlay/.cache/${relative_directory_path_src}'\n"
+
+        # Print directory information
+        print_bold "\tRemove flag: $(get_boolean_as_string "${remove_flag}")\n"
+
+        printf "\n"
+
+        # Print destination directory information
+        print_bold "\tDestination directory: '${absolute_directory_path_dst}'  Exists: $(get_boolean_as_string "${destination_directory_exists}")\n"
+        if [ "${remove_flag}" = true -a "${destination_directory_exists}" = true ]; then
+            print_bold "\t\tDeleted it.\n"
+        fi
+    done
+
+    # Delete the cache directory
+    print_bold "\nDeleting the './data_overlay/.cache/' directory.\n"
+    rm -rf "./data_overlay/.cache/"
+}
+# Copies the data overlay by recursively processing the data_overlay directory, evaluating paths for environment properties, 
+# and copying files to their respective destinations, while creating necessary directories and handling remove flags.
+# Arguments: None
+# Output: Prints the status of each processed directory, whether directories or cache directories were created, 
+#         and the files that have been copied.
+copy_data_overlay() { # TODO: Improve error handling and security
+    # Check if the data_overlay directory exists
+    assert_data_overlay_directory_exists
+
+    # Create the array to store the relative directories paths to process
+    relative_directory_paths_to_process=(
+        ""
+    )
+
+    # Iterate through the directories in the data_overlay directory until all directories are processed
+    while [ "${#relative_directory_paths_to_process[@]}" -gt 0 ]; do
+        # Get the source directory paths
+        relative_directory_path_src="${relative_directory_paths_to_process[0]}"
+        absolute_directory_path_src="$(pwd)/data_overlay/${relative_directory_path_src}"
+
+        # Get the destination directory paths
+        relative_directory_path_dst_eval="$(echo "${relative_directory_path_src}" | sed 's/{/${ENV_PROPERTY_/g')"
+        relative_directory_path_dst="$(eval "echo ${relative_directory_path_dst_eval}")"
+        absolute_directory_path_dst="/${relative_directory_path_dst}"
+
+
+        # Get the files and directories names that are not ignored in the source directory
+        files_in_directory=($(get_files_in_path "${absolute_directory_path_src}"))
+        directories_in_directory=($(get_directories_in_path "${absolute_directory_path_src}"))
+
+
+        # Remove the current directory from the list of directories to process and add it's children
+        relative_directory_paths_to_process=("${relative_directory_paths_to_process[@]:1}")
         for directory in "${directories_in_directory[@]}"; do
-            print_bold "\tAdded sub-directory '${directory}' to the copy process.\n"
+            relative_directory_paths_to_process+=("${relative_directory_path_src}${directory}/")
         done
+
+
+        # Check if the remove flag is set
+        remove_flag="$(path_contains_remove_flag "${absolute_directory_path_src}")"
+
+
+        # Create the destination directory if it does not exist
+        if [ -d "${absolute_directory_path_dst}" ]; then
+            destination_directory_exists=true
+        else
+            mkdir -p "${absolute_directory_path_dst}"
+            destination_directory_exists=false
+        fi
+
+
+        # Create the destination cache directory if it does not exist
+        if [ -d "./data_overlay/.cache/${relative_directory_path_dst}" ]; then
+            destination_cache_directory_exists=true
+        else
+            mkdir -p "./data_overlay/.cache/${relative_directory_path_dst}"
+            destination_cache_directory_exists=false
+        fi
+
+
+        # Create the destination cache directory remove flag file if the remove flag is set
+        if [ "${remove_flag}" = true ]; then
+            touch "./data_overlay/.cache/${relative_directory_path_dst}/.dataoverlayremove"
+        fi
+
 
         # Copy the files
         for file in "${files_in_directory[@]}"; do
-            print_bold "\tCopying the file '${file}'.\n"
             cp "${absolute_directory_path_src}${file}" "${absolute_directory_path_dst}${file}"
+        done
+
+
+        # Start printing directory information
+        print_bold "\nProcessing './data_overlay/${relative_directory_path_src}'\n"
+
+        # Print directory information
+        print_bold "\tRemove flag: $(get_boolean_as_string "${remove_flag}")\n"
+
+        printf "\n"
+
+        # Print destination directory information
+        print_bold "\tDestination directory: '${absolute_directory_path_dst}'  Exists: $(get_boolean_as_string "${destination_directory_exists}")\n"
+        if [ "${destination_directory_exists}" = false ]; then
+            print_bold "\t\tCreated it.\n"
+        fi
+
+        # Print the files that have been copied to the destination directory
+        for file in "${files_in_directory[@]}"; do
+            print_bold "\t\tCopying the file '${file}' to the destination directory.\n"
+        done
+
+        # NOTE: Fix spacing later
+        printf "\n"
+        
+        # Print destination cache directory information
+        print_bold "\tDestination cache directory: './data_overlay/.cache/${relative_directory_path_dst}'  Exists: $(get_boolean_as_string "${destination_cache_directory_exists}")\n"
+        if [ "${destination_cache_directory_exists}" = false ]; then
+            print_bold "\t\tCreated it.\n"
+        fi
+
+        printf "\n"
+
+        # Print the directories that have been added to the process
+        for directory in "${directories_in_directory[@]}"; do
+            print_bold "\tAdded sub-directory '${directory}' to the process.\n"
         done
     done
 }
