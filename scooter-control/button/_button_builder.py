@@ -7,7 +7,7 @@ from utils import find_index
 from _button import Button
 
 from ._button_interceptors import ButtonInterceptorBase, GPIOPinButtonInterceptor, KeyboardButtonInterceptor
-from ._button_handlers import ButtonHandlerBase, LatchButtonHandler
+from ._button_handlers import ButtonHandlerBase, DefaultButtonHandler, LatchButtonHandler
 
 from ._button_options_type import ButtonOptionsType
 
@@ -77,6 +77,10 @@ class ButtonBuilder:
         if self._handler != None:
             print("WARN: BUTTON_BUILDER: A handler is already set; the previous handler will be replaced by this one.")
         self._handler = handler
+    def set_default_button_handler(self, on_value_changed: Callable[[bool], None]) -> DefaultButtonHandler:
+        handler: DefaultButtonHandler = DefaultButtonHandler(on_value_changed)
+        self.set_handler(handler)
+        return handler
     def set_latch_button_handler(self, on_value_changed: Callable[[bool], None], start_value: bool=False, switch_on_recess: bool=False) -> LatchButtonHandler:
         handler: LatchButtonHandler = LatchButtonHandler(on_value_changed, start_value, switch_on_recess)
         self.set_handler(handler)
