@@ -36,23 +36,18 @@ done < <(find "./scooter-control/test/" -maxdepth 1 -type f -name "*.py" 2>/dev/
 # Launch the program
 print_step "Launching the program" "1:2"
 
-PS3="Select a target to launch (or select 'Abort' to exit): "
+temp_file=$(mktemp)
+exec 3> "${temp_file}"
 
-while true; do
-    select target in "${targets[@]}" Abort; do
-        if [[ "${REPLY}" -eq $((${#targets[@]} + 1)) ]]; then
-            print_abort_step_and_exit
-        elif [[ "${REPLY}" -lt 1 || "${REPLY}" -gt $((${#targets[@]} + 1)) ]]; then
-            print_bold "Unknown choice \"${REPLY}\"\n\n"
-        else
-            break 2
-        fi
-    done
-done
+select_option_with_abort "Select a target to launch" "${targets[@]}"
+selected_target_index=$(<"$temp_file")
 
-if [[ "${REPLY}" -eq 1 ]]; then
+exec 3>&-
+
+if [[ "${selected_target_index}" -eq 1 ]]; then
     target_path="scooter-control/main.py"
 else
+    target="${targets[$((selected_target_index - 1))]}"
     target_path="scooter-control/test/${target}.py"
 fi
 

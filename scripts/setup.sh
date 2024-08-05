@@ -39,15 +39,16 @@ fi
 # Make every other scripts in this directory executable
 print_step "Making other scripts executable" "0:2"
 
-find "${SCRIPT_DIR_PATH}" -type f -name "*.sh" | while IFS= read -r file; do
+while IFS= read -r -d $'\0' file; do
+    path_in_script_dir="${file#${SCRIPT_DIR_PATH}}"
 	if chmod +x "${file}"; then
-        print_bold "Added executable permission to file \"$(basename "${file}")\".\n"
+        print_bold "Added executable permission to file '${path_in_script_dir}'.\n"
     else
-        print_bold "Failed to add executable permission to file \"$(basename "${file}")\".\n"
+        print_bold "Failed to add executable permission to file '${path_in_script_dir}'.\n"
         
         print_exit_step_and_exit
     fi
-done
+done < <(find "${SCRIPT_DIR_PATH}" -type f -name "*.sh" -print0)
 
 
 
@@ -76,26 +77,21 @@ fi
 # Install python 3 packages
 print_step "Installing python 3 packages" "1:2"
 
-PS3="Select a python 3 package list to install (or select 'Abort' to exit): "
-python3_package_lists=("Development environment package list" "Board environment package list")
+temp_file=$(mktemp)
+exec 3> "${temp_file}"
 
-while true; do
-    select item in "${python3_package_lists[@]}" Abort; do
-        case $REPLY in
-            1) break 2;;
-            2) break 2;;
-            $((${#items[@]}+1))) print_abort_step_and_exit;;
-            *) print_bold "Unknown choice \"${REPLY}\"\n\n"; break;
-        esac
-    done
-done
+python3_package_lists=("Development environment package list" "Board environment package list")
+select_option_with_abort "Select a python 3 package list to install" "${python3_package_lists[@]}"
+selected_package_list_index=$(<"$temp_file")
+
+exec 3>&-
 
 printf "\n"
 
-if [ "$REPLY" -eq "1" ]; then
+if [ "${selected_package_list_index}" -eq "1" ]; then
     packages_file_path="$(realpath "${SCRIPT_DIR_PATH}")/data/python_package_lists/development_environment_requirements.txt"
     error_message="Failed to install development environment packages."
-elif [ "$REPLY" -eq "2" ]; then
+elif [ "${selected_package_list_index}" -eq "2" ]; then
     packages_file_path="$(realpath "${SCRIPT_DIR_PATH}")/data/python_package_lists/board_environment_requirements.txt"
     error_message="Failed to install board environment packages."
 fi

@@ -30,19 +30,15 @@ fi
 # Select the device
 print_step "Connecting to a device" "1:2"
 
-PS3="Select a device to connect to (or select 'Abort' to exit): "
+temp_file=$(mktemp)
+exec 3> "${temp_file}"
 
-while true; do
-    select device in "${devices[@]}" Abort; do
-        if [[ "${REPLY}" -eq $((${#devices[@]} + 1)) ]]; then
-            print_abort_step_and_exit
-        elif [[ "${REPLY}" -lt 1 || "${REPLY}" -gt $((${#devices[@]} + 1)) ]]; then
-            print_bold "Unknown choice \"${REPLY}\"\n\n"
-        else
-            break 2
-        fi
-    done
-done
+select_option_with_abort "Select a device to connect to" "${devices[@]}"
+selected_device_index=$(<"$temp_file")
+
+exec 3>&-
+
+device="${devices[$((selected_device_index - 1))]}"
 
 if ! screen "/dev/${device}" 115200 -L; then
     print_bold "\nFailed to connect to device.\n"
