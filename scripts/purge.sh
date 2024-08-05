@@ -34,10 +34,10 @@ fi
 
 
 # Remove python 3 cache directories
-print_step "Removing python 3 cache"
+print_step "Removing python 3 project cache"
 
 if ! find "./scooter-control/" | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf; then
-    print_bold "Failed to remove python 3 cache.\n"
+    print_bold "Failed to remove python 3 project cache.\n"
 
     print_exit_step_and_exit
 fi
