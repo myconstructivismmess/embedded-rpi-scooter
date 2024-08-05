@@ -99,6 +99,22 @@ load_env_variables() {
 
 
 
+# Converts a boolean value (true/false) to a string representation ("True"/"False").
+# Arguments:
+#   $1 - The boolean value to convert (should be either 'true' or 'false').
+# Output: Prints "True" if the input value is 'true', otherwise prints "False".
+get_boolean_as_string() {
+    local value="$1"
+
+    if [[ "${value}" = true ]]; then
+        echo "True"
+    else
+        echo "False"
+    fi
+}
+
+
+
 # Prints a formatted step message with a specified number of newlines before and after the message.
 # Arguments:
 #   $1 - The text of the step to be printed.
