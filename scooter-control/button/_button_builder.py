@@ -77,8 +77,8 @@ class ButtonBuilder:
         if self._handler != None:
             print("WARN: BUTTON_BUILDER: A handler is already set; the previous handler will be replaced by this one.")
         self._handler = handler
-    def set_latch_button_handler(self, on_value_changed: Callable[[bool], None], start_value: bool=False) -> LatchButtonHandler:
-        handler: LatchButtonHandler = LatchButtonHandler(on_value_changed, start_value)
+    def set_latch_button_handler(self, on_value_changed: Callable[[bool], None], start_value: bool=False, switch_on_recess: bool=False) -> LatchButtonHandler:
+        handler: LatchButtonHandler = LatchButtonHandler(on_value_changed, start_value, switch_on_recess)
         self.set_handler(handler)
         return handler
 
