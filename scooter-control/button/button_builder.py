@@ -2,17 +2,17 @@
 from typing import List, Callable, Dict
 
 # Project Imports
-from utils import find_index
+from ..utils.array import find_index
 
-from _button import Button
+from ..gpio_pin import GPIOPin
 
-from ._button_interceptors import ButtonInterceptorBase, GPIOPinButtonInterceptor, KeyboardButtonInterceptor
-from ._button_handlers import ButtonHandlerBase, DefaultButtonHandler, LatchButtonHandler
-
-from ._button_options_type import ButtonOptionsType
+from .button_options_type import ButtonOptionsType
+from .button import Button
+from .interceptors import ButtonInterceptorBase, GPIOPinButtonInterceptor, KeyboardButtonInterceptor
+from .handlers import ButtonHandlerBase, DefaultButtonHandler, LatchButtonHandler
 
 # Functions
-def is_interceptor_gpio_pin_equal(interceptor: GPIOPinButtonInterceptor | KeyboardButtonInterceptor, gpio_pin: Pin) -> bool:
+def is_interceptor_gpio_pin_equal(interceptor: GPIOPinButtonInterceptor | KeyboardButtonInterceptor, gpio_pin: GPIOPin) -> bool:
     if isinstance(interceptor, KeyboardButtonInterceptor):
         return False
     
@@ -41,9 +41,9 @@ class ButtonBuilder:
         self._handler: ButtonHandlerBase = None
 
     # Interceptors
-    def add_gpio_pin_interceptor(self, gpio_pin: Pin, reserse_signal: bool=False) -> None:
+    def add_gpio_pin_interceptor(self, gpio_pin: GPIOPin, reserse_signal: bool=False) -> None:
         self._gpio_pin_interceptors.append(GPIOPinButtonInterceptor(gpio_pin, reserse_signal))
-    def remove_gpio_pin_interceptor(self, gpio_pin: Pin) -> None:
+    def remove_gpio_pin_interceptor(self, gpio_pin: GPIOPin) -> None:
         index = find_index(self._gpio_pin_interceptors, lambda interceptor: is_interceptor_gpio_pin_equal(interceptor, gpio_pin))
         if index != 1:
             self._gpio_pin_interceptors.pop(index)

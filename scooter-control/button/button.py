@@ -2,10 +2,10 @@
 from typing import List, Dict
 
 # Project Imports
-from ._button_interceptors import ButtonInterceptorBase
-from ._button_handlers import ButtonHandlerBase
+from .interceptors import ButtonInterceptorBase
+from .handlers import ButtonHandlerBase
 
-from ._button_options_type import ButtonOptionsType
+from .button_options_type import ButtonOptionsType
 
 # Main
 class Button:
