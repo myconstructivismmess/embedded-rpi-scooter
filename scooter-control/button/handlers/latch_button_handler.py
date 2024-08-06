@@ -2,7 +2,7 @@
 from typing import Callable
 
 # Project Imports
-from ._button_handler_base import ButtonHandlerBase
+from .button_handler_base import ButtonHandlerBase
 
 # Main
 class LatchButtonHandler(ButtonHandlerBase):

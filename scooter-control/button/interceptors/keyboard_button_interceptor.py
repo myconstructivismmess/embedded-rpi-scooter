@@ -2,12 +2,13 @@
 import keyboard
 
 # Project Imports
-from ._button_interceptor_base import ButtonInterceptorBase
+from .button_interceptor_base import ButtonInterceptorBase
 
 # Main
 class KeyboardButtonInterceptor(ButtonInterceptorBase):
     def __init__(self, key_name: str, reverse_signal: bool=False) -> None:
         super().__init__(reverse_signal)
+        
         self._key_name: str = key_name
 
     def _get_value(self) -> bool:
