@@ -1,15 +1,26 @@
 # Python Imports
 import os
-from threading import Thread
+from queue import Queue
+from threading import Thread, Event
+import wave
 
 # Packages Imports
 import alsaaudio
 
-# Local Imports
-from constants import PROGRAM, SOUND_COLLECTION
+# Project Imports
+from horn_sound_player_thread_messages import *
+from horn_sound_player_thread import horn_sound_player_thread
 
 # Class
 class HornSoundPlayer:
+    def _create_sound_player_thread(self):
+        self._thread_send_message_queue: Queue[] = Queue()
+        self._thread_receive_message_queur: Queue[] = Queue()
+
+        self._thread: Thread = Thread(target=horn_sound_player_thread, daemon=True, name="sound_player")
+        self._thread.daemon = True
+        self._thread.start()
+
     """
     Sound player for horn sounds.
 
@@ -35,6 +46,7 @@ class HornSoundPlayer:
         
         self._collection_directory_path = sound_collection_directory_path
 
+        self._create_sound_player_thread()
 
         sounds_paths = []
         sounds_repeatability = []
@@ -51,13 +63,13 @@ class HornSoundPlayer:
             if child_name.endswith(SOUND_COLLECTION.SUPPORTED_AUDIO_FILE_EXTENSIONS):
 
             else
-        self._sounds = 
+        self._sounds = alsaaudio.
 
         self._sound_thread = Thread(name="sound", target=self._sound_playing_task)
         self._sound_thread.start()
 
     def _sound_playing_task(self):
-
+        pass
 
     def _update_sound_collection(self):
         pass
