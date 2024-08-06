@@ -19,6 +19,8 @@ class Program(ABC):
             quit_button_builder.add_keyboard_interceptor('q')
             quit_button_builder.set_default_button_handler(on_quit_button_value_change)
             self._quit_button: Button = quit_button_builder.build()
+        else:
+            self._quit_button: None = None
 
     @property
     def should_exit(self) -> bool:
@@ -29,7 +31,7 @@ class Program(ABC):
 
     def run_until_quit(self) -> None:
         while not self.should_exit:
-            if self._quit_button:
+            if isinstance(self._quit_button, Button):
                 self._quit_button.update()
             self.update()
 
