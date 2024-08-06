@@ -1,2 +1,3 @@
 pyalsaaudio
 keyboard
+python-dotenv

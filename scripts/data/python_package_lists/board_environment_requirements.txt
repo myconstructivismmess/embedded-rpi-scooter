@@ -2,3 +2,4 @@ adafruit-blinka
 adafruit-circuitpython-neopixel
 pyalsaaudio
 keyboard
+python-dotenv
