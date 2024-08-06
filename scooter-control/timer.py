@@ -80,6 +80,15 @@ class Timer:
         for handler in self._handlers:
             handler._update(elapsed_time_seconds)
 
+    @property
+    def time_seconds(self) -> float:
+        """
+        The current time in seconds.
+
+        This property returns the current time in seconds since the epoch.
+        """
+        return self._time_seconds
+
     def create_handler(self) -> TimerHandler:
         """
         Creates a new TimerHandler instance, adds it to the list of handlers, and returns it.
