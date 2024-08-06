@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../"
+		}
+	],
+	"settings": {
+		"files.trimFinalNewlines": true,
+    	"python.defaultInterpreterPath": "./scooter-control/.venv/bin/python3",
+	}
+}
