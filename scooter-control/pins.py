@@ -7,13 +7,13 @@ from .gpio_pin import GPIOPin
 # Main
 class Pins:
     def __init__(self) -> None:
-        self._front_leds_pin: GPIOPin = GPIOPin(os.environ.get("FRONT_LEDS_PIN"))
-        self._back_leds_pin: GPIOPin = GPIOPin(os.environ.get("BACK_LEDS_PIN"))
-        self._turn_left_signal_button_pin: GPIOPin = GPIOPin(os.environ.get("TURN_LEFT_SIGNAL_BUTTON_PIN"))
-        self._turn_right_signal_button_pin: GPIOPin = GPIOPin(os.environ.get("TURN_RIGHT_SIGNAL_BUTTON_PIN"))
-        self._light_on_off_button_pin: GPIOPin = GPIOPin(os.environ.get("LIGHT_ON_OFF_BUTTON_PIN"))
-        self._horn_button_pin: GPIOPin = GPIOPin(os.environ.get("HORN_BUTTON_PIN"))
-        self._brake_detector_pin: GPIOPin = GPIOPin(os.environ.get("BRAKE_DETECTOR_PIN"))
+        self._front_leds_pin: GPIOPin = GPIOPin(os.getenv("FRONT_LEDS_PIN"))
+        self._back_leds_pin: GPIOPin = GPIOPin(os.getenv("BACK_LEDS_PIN"))
+        self._turn_left_signal_button_pin: GPIOPin = GPIOPin(os.getenv("TURN_LEFT_SIGNAL_BUTTON_PIN"))
+        self._turn_right_signal_button_pin: GPIOPin = GPIOPin(os.getenv("TURN_RIGHT_SIGNAL_BUTTON_PIN"))
+        self._light_on_off_button_pin: GPIOPin = GPIOPin(os.getenv("LIGHT_ON_OFF_BUTTON_PIN"))
+        self._horn_button_pin: GPIOPin = GPIOPin(os.getenv("HORN_BUTTON_PIN"))
+        self._brake_detector_pin: GPIOPin = GPIOPin(os.getenv("BRAKE_DETECTOR_PIN"))
 
     @property
     def front_leds_pin(self) -> GPIOPin:
