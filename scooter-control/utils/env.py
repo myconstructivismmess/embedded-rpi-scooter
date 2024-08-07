@@ -24,3 +24,11 @@ def load_env_file(script_path: str, relative_path_to_env_directory: str) -> None
     else:
         logging.error(f"Failed to load environment variables from {file_path}")
         exit(1)
+
+def format_str_with_env(path: str) -> str:
+    """
+    Format a string with environment variables in it and return the result.
+    """
+    environment_variables = os.environ
+    path = path.format(**environment_variables)
+    return path
