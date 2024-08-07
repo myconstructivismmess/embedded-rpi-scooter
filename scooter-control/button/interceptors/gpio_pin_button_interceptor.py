@@ -6,7 +6,7 @@ try:
     from digitalio import DigitalInOut, Pull
     MICROCONTROLLER_MODULE_LOADED = True
 except ImportError:
-    logging.warning("IMPORTS: The 'digitalio' module cannot be imported; this is normal in a development environment (outside of a board environment).")
+    logging.warning("imports: The 'digitalio' module cannot be imported; this is normal in a development environment (outside of a board environment).")
     MICROCONTROLLER_MODULE_LOADED = False
 
 # Project Imports

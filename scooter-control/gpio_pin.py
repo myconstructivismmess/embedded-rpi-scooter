@@ -7,7 +7,7 @@ try:
     import board
     MICROCONTROLLER_MODULE_LOADED = True
 except ImportError:
-    logging.warning("IMPORTS: The 'microcontroller' and 'board' modules cannot be imported; this is normal in a development environment (outside of a board environment).")
+    logging.warning("imports: The 'microcontroller' and 'board' modules cannot be imported; this is normal in a development environment (outside of a board environment).")
     MICROCONTROLLER_MODULE_LOADED = False
     class Pin():
         pass

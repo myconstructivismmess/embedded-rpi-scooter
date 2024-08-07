@@ -23,7 +23,7 @@ fi
 
 
 # Launch the program
-print_step "Launching the program"
+print_step "Launching the program" "1:2"
 
 if ! ./scooter-control/.venv/bin/python3 -m "scooter-control.main"; then
     print_bold "\nFailed to launch the program.\n"

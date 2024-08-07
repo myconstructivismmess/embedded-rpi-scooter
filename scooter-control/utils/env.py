@@ -16,17 +16,17 @@ def load_env_file(script_path: str, relative_path_to_env_directory: str) -> None
     file_path = os.path.join(env_dir_path, ".env")
 
     if not os.path.exists(file_path):
-        logging.error(f"Environment file not found: {file_path}")
+        logging.error(f"env: Environment file not found: {file_path}")
         exit(1)
 
     if not os.path.isfile(file_path):
-        logging.error(f"Environment file is not a file: {file_path}")
+        logging.error(f"env: Environment file is not a file: {file_path}")
         exit(1)
 
     if load_dotenv(dotenv_path=file_path):
-        logging.info(f"Loaded environment variables from {file_path}")
+        logging.info(f"env: Loaded environment variables from {file_path}")
     else:
-        logging.error(f"Failed to load environment variables from {file_path}")
+        logging.error(f"env: Failed to load environment variables from {file_path}")
         exit(1)
 
 def format_str_with_env(path: str) -> str:

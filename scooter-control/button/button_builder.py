@@ -1,6 +1,8 @@
 # Python Imports
 from typing import List, Callable, Dict
 
+import logging
+
 # Project Imports
 from ..utils.array import find_index
 
@@ -61,11 +63,11 @@ class ButtonBuilder:
         match option_type:
             case ButtonOptionsType.FORCE_INIT_UP:
                 if (state and self._options[ButtonOptionsType.FORCE_INIT_DOWN]):
-                    print("WARN: FORCE_INIT_DOWN is active but you enabled FORCE_INIT_UP, FORCE_INIT_DOWN will be disabled.")
+                    logging.warning("button_builder: FORCE_INIT_DOWN is active but you enabled FORCE_INIT_UP, FORCE_INIT_DOWN will be disabled.")
                     self._options[ButtonOptionsType.FORCE_INIT_DOWN] = False
             case ButtonOptionsType.FORCE_INIT_DOWN:
                 if (state and self._options[ButtonOptionsType.FORCE_INIT_UP]):
-                    print("WARN: FORCE_INIT_UP is active but you enabled FORCE_INIT_DOWN, FORCE_INIT_UP will be disabled.")
+                    logging.warning("button_builder: FORCE_INIT_UP is active but you enabled FORCE_INIT_DOWN, FORCE_INIT_UP will be disabled.")
                     self._options[ButtonOptionsType.FORCE_INIT_UP] = False
     def enable_option(self, option_type: ButtonOptionsType) -> None:
         self.define_option_state(option_type, True)
@@ -75,7 +77,7 @@ class ButtonBuilder:
     # Handler
     def set_handler(self, handler: ButtonHandlerBase) -> None:
         if self._handler != None:
-            print("WARN: BUTTON_BUILDER: A handler is already set; the previous handler will be replaced by this one.")
+            logging.warning("button_builder: A handler is already set; the previous handler will be replaced by this one.")
         self._handler = handler
     def set_default_button_handler(self, on_value_changed: Callable[[bool], None]) -> DefaultButtonHandler:
         handler: DefaultButtonHandler = DefaultButtonHandler(on_value_changed)
