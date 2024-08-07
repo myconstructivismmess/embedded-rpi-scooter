@@ -1,5 +1,5 @@
 adafruit-blinka
 adafruit-circuitpython-neopixel
-pyalsaaudio
+pygame
 keyboard
 python-dotenv
