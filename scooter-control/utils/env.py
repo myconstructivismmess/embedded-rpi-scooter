@@ -19,6 +19,10 @@ def load_env_file(script_path: str, relative_path_to_env_directory: str) -> None
         logging.error(f"Environment file not found: {file_path}")
         exit(1)
 
+    if not os.path.isfile(file_path):
+        logging.error(f"Environment file is not a file: {file_path}")
+        exit(1)
+
     if load_dotenv(dotenv_path=file_path):
         logging.info(f"Loaded environment variables from {file_path}")
     else:
