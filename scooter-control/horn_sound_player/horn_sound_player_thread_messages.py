@@ -1,11 +1,12 @@
 # Python Imports
 from enum import Enum
+
 import logging
 
 # Main
 class MessageType(Enum):
-    PLAY_SOUND = 1
-    STOP_SOUND = 2
+    START_SOUND = 1
+    STOP_REPEATABLE_SOUND = 2
     LOG = 3
     WARNING = 4
     ERROR = 5
@@ -20,16 +21,17 @@ class Message:
 
 
 class StartSoundMessage(Message):
-    def __init__(self, id: int) -> None:
-        self._id: int = id
+    def __init__(self, index: int) -> None:
+        super().__init__(MessageType.START_SOUND)
+        self._index: int = index
 
     @property
-    def id(self) -> int:
-        return self._id
+    def index(self) -> int:
+        return self._index
 
 class StopRepeatableSoundMessage(Message):
     def __init__(self) -> None:
-        pass
+        super().__init__(MessageType.STOP_REPEATABLE_SOUND)
 
 
 class LogThreadMessage(Message):
