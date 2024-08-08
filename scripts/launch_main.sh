@@ -7,7 +7,6 @@ set -e
 SCRIPT_FILE_NAME="launch_main.sh"
 SCRIPT_DIR_PATH="${BASH_SOURCE:0:-${#SCRIPT_FILE_NAME}}"
 source "${SCRIPT_DIR_PATH}common.sh"
-assert_root
 
 
 
