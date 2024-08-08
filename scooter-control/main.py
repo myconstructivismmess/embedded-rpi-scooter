@@ -205,6 +205,8 @@ class ScooterControl(Program):
         self._light_on_off_button.update()
         self._horn_button.update()
 
+        # Update horn sound player
+        self._horn_sound_player.update()
 
 if __name__ == "__main__":
     # Check python version
