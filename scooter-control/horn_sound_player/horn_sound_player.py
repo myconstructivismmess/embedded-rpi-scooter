@@ -3,18 +3,18 @@ import os
 
 import re as regex
 
-from queue import Queue
-
-import logging
+from logging import warning as log_warning, error as log_error, info as log_info
 
 from threading import Thread
 
-from typing import cast, List, Dict
+from time import time
+
+from queue import Queue
+from typing import cast, List, Dict, Tuple
 
 # Project Imports
-from .horn_sound_player_thread_messages import MessageType, Message, StartSoundMessage, StopRepeatableSoundMessage, LogThreadMessage, WarningThreadMessage, ErrorThreadMessage
+from .horn_sound_player_thread_messages import MessageType, Message, StartSoundMessage, StopRepeatableSoundMessage, LogThreadMessage, WarningThreadMessage, ErrorThreadMessage, SoundsLoadedResultMessage
 from .horn_sound_player_thread import horn_sound_player_thread
-from .horn_sound_data import HornSoundData
 
 # Class
 class HornSoundPlayer:
@@ -31,74 +31,92 @@ class HornSoundPlayer:
     """
     def __init__(self, horn_sound_collection_path: str, audio_device: str):
         if not os.path.isabs(horn_sound_collection_path):
-            raise ValueError(f"\"{horn_sound_collection_path}\" is not an absolute path.")
+            raise ValueError(f"'{horn_sound_collection_path}' is not an absolute path.")
         
         if not os.path.exists(horn_sound_collection_path):
-            raise ValueError(f"\"{horn_sound_collection_path}\" does not exist.")
+            raise ValueError(f"'{horn_sound_collection_path}' does not exist.")
         
         if not os.path.isdir(horn_sound_collection_path):
-            raise ValueError(f"\"{horn_sound_collection_path}\" is not a directory.")
+            raise ValueError(f"'{horn_sound_collection_path}' is not a directory.")
         
-        horn_sound_file_name_pattern = regex.compile(r"^(short\d+\.wav|long\d+(_repeatable)?\.wav)$")
+        pattern = regex.compile(r"^(short\d+\.wav|long\d+(_repeatable)?\.wav)$")
         
-        horn_sound_collection_path_content: List[str] = os.listdir(horn_sound_collection_path)
-        self._sounds: Dict[int, HornSoundData] = {}
-        for child_name in horn_sound_collection_path_content:
+        content: List[str] = os.listdir(horn_sound_collection_path)
+        sounds_to_load: Dict[int, Tuple[str, bool]] = {}
+        self._long_sound_repeatability_table: Dict[int, bool] = {}
+        for child_name in content:
             child_path = os.path.join(horn_sound_collection_path, child_name)
 
             if not os.path.isfile(child_path):
                 continue
+
             if not child_name.endswith(".wav"):
                 continue
             
-            if not horn_sound_file_name_pattern.match(child_name):
-                raise ValueError(f"\"{child_name}\" is not a valid horn sound file name.")
-            
-            logging.info(f"horn_sound_player: Loading sound file \"{child_name}\"...")
+            if not pattern.match(child_name):
+                log_warning(f"horn_sound_player: '{child_name}' is not a valid horn sound file name.")
+                continue
 
             index: int = -1
             is_long: bool = False
             is_repeatable: bool = False
             if child_name.startswith("short"):
-                index: int = int(child_name[5:-4])
+                index: int = int(child_name[5:-4]) - 1
             elif child_name.startswith("long"):
                 is_long = True
                 is_repeatable = child_name.endswith("_repeatable.wav")
                 cut_index_left: int = -4 if not is_repeatable else -15
-                index: int = int(child_name[4:cut_index_left])
+                index: int = int(child_name[4:cut_index_left]) - 1
 
             if index < 0:
-                raise ValueError("Hoops! Something went wrong while loading the sound files.")
+                raise log_error(f"horn_sound_player: '{child_name}' is not a valid horn sound file name.")
             
-            real_index = (index - 1) * 2 + (1 if is_long else 0)
+            real_index = index * 2 + (1 if is_long else 0)
 
-            if real_index in self._sounds:
-                raise ValueError("Hoops! Something went wrong while loading the sound files. A sound is already loaded with the same real index.")
+            log_info(f"horn_sound_player: {'Long' if is_long else 'Short'} sound at '{child_path}' with index {index} detected as a {'repeatable' if is_repeatable else 'non-repeatable'} sound with real index {real_index}.")
 
-            try:
-                self._sounds[real_index] = HornSoundData(
-                    child_path,
-                    is_repeatable
-                )
-            except Exception as e:
-                raise ValueError(f"An error occurred while loading the sound file \"{child_name}\".") from e
-            
-            logging.info(f"horn_sound_player: {'Long' if is_long else 'Short'} sound {index} loaded as a {'repeatable' if is_repeatable else 'non-repeatable'} sound with real index {real_index}.")
-
-        missing_sounds: List[int] = []
-        for i in range(0, len(self._sounds)):
-            if i not in self._sounds:
-                missing_sounds.append(i)
-        
-        if len(missing_sounds) > 0:
-            raise ValueError(f"Missing sounds: {', '.join([str(i) for i in missing_sounds])}")
+            self._long_sound_repeatability_table[index] = is_repeatable
+            sounds_to_load[real_index] = (child_path, is_repeatable)
 
         self._thread_send_message_queue: Queue[Message] = Queue()
         self._thread_receive_message_queue: Queue[Message] = Queue()
 
-        self._thread: Thread = Thread(target=horn_sound_player_thread, daemon=True, name="sound_player", args=(self._thread_send_message_queue, self._thread_receive_message_queue, self._sounds, audio_device))
-        self._thread.daemon = True
+        self._thread: Thread = Thread(
+            target=horn_sound_player_thread,
+            daemon=True,
+            name="sound_player",
+            args=(
+                self._thread_send_message_queue,
+                self._thread_receive_message_queue,
+                sounds_to_load,
+                audio_device
+            )
+        )
         self._thread.start()
+
+        current_time = time()
+        sounds_loaded_result_message: SoundsLoadedResultMessage | None = None
+        log_info("horn_sound_player: Waiting for sound thread to answer with sounds loading results...")
+        while time() - current_time < 15:
+            if self._thread_receive_message_queue.empty():
+                continue
+
+            update_result = self._update()
+
+            if update_result is not None:
+                sounds_loaded_result_message = update_result
+                break
+
+        if sounds_loaded_result_message is None:
+            raise RuntimeError("horn_sound_player: Sound thread did not answer in time.")
+        
+        for index, is_success in sounds_loaded_result_message.sounds_load_success_status.items():
+            if not is_success:
+                log_error(f"horn_sound_player: Sound with index {index} failed to load.")
+            else:
+                log_info(f"horn_sound_player: Sound with index {index} loaded successfully.")
+
+        self._sounds_load_success_status: Dict[int, bool] = sounds_loaded_result_message.sounds_load_success_status.copy()
 
     def play_sound(self, index: int) -> None:
         """
@@ -124,6 +142,9 @@ class HornSoundPlayer:
 
         This function is mainly used to log errors, warnings and messages from the internal thread.
         """
+        self._update()
+
+    def _update(self) -> StartSoundMessage | None:
         while not self._thread_receive_message_queue.empty():
             message = self._thread_receive_message_queue.get()
             match message.type:
@@ -133,9 +154,13 @@ class HornSoundPlayer:
                     cast(WarningThreadMessage, message).log()
                 case MessageType.ERROR:
                     cast(ErrorThreadMessage, message).log()
+                case MessageType.SOUNDS_LOADED_RESULT:
+                    sounds_loaded_result_message = cast(SoundsLoadedResultMessage, message)
+                    return sounds_loaded_result_message
+        return None
 
     @property
-    def long_sound_repeatability_table(self) -> list[bool]:
+    def long_sound_repeatability_table(self) -> Dict[int, bool]:
         """
         The long sound repeatability table.
 
@@ -145,7 +170,7 @@ class HornSoundPlayer:
             The long sound repeatability table.
         """
         return self.get_long_sound_repeatability_table()
-    def get_long_sound_repeatability_table(self) -> list[bool]:
+    def get_long_sound_repeatability_table(self) -> Dict[int, bool]:
         """
         Get the long sound repeatability table.
 
@@ -154,8 +179,30 @@ class HornSoundPlayer:
         list[bool]
             The long sound repeatability table.
         """
-        return self._long_sound_repeatability_table
+        return self._long_sound_repeatability_table.copy()
     
+    @property
+    def sounds_load_success_status(self) -> Dict[int, bool]:
+        """
+        The sounds load success status.
+
+        Returns
+        -------
+        Dict[int, bool]
+            The sounds load success status.
+        """
+        return self.get_sounds_load_success_status()
+    def get_sounds_load_success_status(self) -> Dict[int, bool]:
+        """
+        Get the sounds load success status.
+
+        Returns
+        -------
+        Dict[int, bool]
+            The sounds load success status.
+        """
+        return self._sounds_load_success_status.copy()
+
     @property
     def sound_count(self) -> int:
         """
