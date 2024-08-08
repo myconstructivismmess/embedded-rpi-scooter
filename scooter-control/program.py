@@ -33,7 +33,12 @@ class Program(ABC):
         while not self.should_exit:
             if isinstance(self._quit_button, Button):
                 self._quit_button.update()
-            self.update()
+            try:
+                self.update()
+            except KeyboardInterrupt:
+                self.quit()
+            except Exception as e:
+                raise e
 
     @abstractmethod
     def update(self) -> None:
