@@ -3,9 +3,6 @@ import os
 from sys import exit
 import logging
 
-# Packages Imports
-from dotenv import load_dotenv
-
 # Main
 def load_env_file(script_path: str, relative_path_to_env_directory: str) -> None:
     """
