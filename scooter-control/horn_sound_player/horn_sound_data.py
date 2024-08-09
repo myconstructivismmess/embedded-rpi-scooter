@@ -2,66 +2,75 @@
 import wave
 
 from typing import List
-
 from queue import Queue
 
 # Packages Imports
 import alsaaudio
 
 # Project Imports
-from .horn_sound_player_thread_messages import Message, MessageType, LogThreadMessage, WarningThreadMessage, ErrorThreadMessage, StartSoundMessage, StopRepeatableSoundMessage
+from .horn_sound_player_thread_messages import Message, WarningThreadMessage, ErrorThreadMessage, LogThreadMessage
 
 # Main
 class HornSoundData:
     def __init__(self, path: str, is_repeatable: bool) -> None:
-        self._repeatable: bool = is_repeatable
-        self._channels: int = 1
-        self._nframes: int = 0
-        self._period_size: int = 0
-        self._sound_data: List[bytes] = []
-        self._sound_format = None
-
-        self._current_frame: int = 0
-
         with wave.open(path, "rb") as sound_file:
-            self._nframes = sound_file.getnframes()
-            self._period_size = sound_file.getframerate()
-            self._channels = sound_file.getnchannels()
+            # Repeatability
+            self._repeatable: bool = is_repeatable
+
+            # Channels
+            self._channels: int = sound_file.getnchannels()
+
+            # Framerate
+            self._framerate: int = sound_file.getframerate()
+
+            # Period Size
+            self._period_size: int = self._framerate // 8
+
+            # Sample Width
+            self._sample_width: int = sound_file.getsampwidth()
+
+            # 8bit is unsigned in wav files
+            if self._sample_width == 1:
+                self._format: int = alsaaudio.PCM_FORMAT_U8
+            # Otherwise we assume signed data, little endian
+            elif self._sample_width == 2:
+                self._format: int = alsaaudio.PCM_FORMAT_S16_LE
+            elif self._sample_width == 3:
+                self._format: int = alsaaudio.PCM_FORMAT_S24_3LE
+            elif self._sample_width == 4:
+                self._format: int = alsaaudio.PCM_FORMAT_S32_LE
+            else:
+                raise ValueError('Unsupported format')
+        
+            # Save Data
+            self._sound_data: List[bytes] = []
 
             data_block: bytes = sound_file.readframes(self._period_size)
             while data_block:
                 self._sound_data.append(data_block)
                 data_block = sound_file.readframes(self._period_size)
 
-            match sound_file.getsampwidth():
-                case 1:
-                    self._sound_format = alsaaudio.PCM_FORMAT_U8
-                case 2:
-                    self._sound_format = alsaaudio.PCM_FORMAT_S16_LE
-                case 3:
-                    self._sound_format = alsaaudio.PCM_FORMAT_S24_3LE
-                case 4:
-                    self._sound_format = alsaaudio.PCM_FORMAT_S32_LE
-                case _:
-                    raise ValueError('Unsupported format')
-                
-    def define_device_properties(self, device: alsaaudio.PCM) -> None:
+            # Data Frames
+            self._current_frame: int = 0
+            self._frame_count: int = len(self._sound_data)
+
+    def define_device_properties(self, device: alsaaudio.PCM) -> None: # NOTE: This method as probably a problem
         device.setchannels(self._channels)
-        device.setrate(self._period_size)
-        device.setformat(self._sound_format)
-        device.setperiodsize(self._period_size)
+        device.setrate(self._framerate)
+        device.setformat(self._format)
+        device.setperiodsize(self._framerate)
                 
     def play_frame(self, device: alsaaudio.PCM, thread_send_message_queue: Queue[Message]) -> None:
         data = self._sound_data[self._current_frame]
 
         if device.write(data) < 0:
-            thread_send_message_queue.warning("Playback buffer underrun! Continuing nonetheless ...")
+            thread_send_message_queue.put(WarningThreadMessage("Playback buffer underrun! Continuing nonetheless ..."))
         
-        if self._current_frame >= self._nframes:
-            if self._repeatable:
-                self._current_frame = 0
-        else:
+        if self._current_frame < (self._frame_count - 1):
             self._current_frame += 1
+            
+        elif self._repeatable and self._current_frame >= (self._frame_count - 1):
+            self._current_frame = 0
 
     def reset(self) -> None:
         self._current_frame = 0
@@ -79,28 +88,4 @@ class HornSoundData:
         if self._repeatable:
             return False
         
-        return self._current_frame >= self._nframes
-    
-    @property
-    def channels(self) -> int:
-        return self.get_channels()
-    def get_channels(self) -> int:
-        return self._channels
-    
-    @property
-    def period_size(self) -> int:
-        return self.get_period_size()
-    def get_period_size(self) -> int:
-        return self._period_size
-    
-    @property
-    def nframes(self) -> int:
-        return self.get_nframes()
-    def get_nframes(self) -> int:
-        return self._nframes
-    
-    @property
-    def format(self) -> int:
-        return self.get_format()
-    def get_format(self) -> int:
-        return self._sound_format
+        return self._current_frame >= (self._frame_count - 1)
