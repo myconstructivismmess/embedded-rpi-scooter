@@ -4,9 +4,9 @@ set -e
 
 
 # Base
-SCRIPT_FILE_NAME="copy.sh"
+SCRIPT_FILE_NAME="purge.sh"
 SCRIPT_DIR_PATH="${BASH_SOURCE:0:-${#SCRIPT_FILE_NAME}}"
-source "${SCRIPT_DIR_PATH}common.sh"
+source "${SCRIPT_DIR_PATH}_common.sh"
 assert_root
 
 
@@ -22,31 +22,10 @@ fi
 
 
 
-# Check if the .env file exists
-print_step "Checking if the .env file exists"
-
-assert_env_file_exists
-
-
-
-# Load environment variables
-print_step "Loading environment variables"
-
-load_env_variables
-
-
-
 # Purge data overlay
 print_step "Purging data overlay"
 
 purge_data_overlay
-
-
-
-# Copy data overlay
-print_step "Copying data overlay"
-
-copy_data_overlay
 
 
 

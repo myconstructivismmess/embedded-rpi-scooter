@@ -6,7 +6,7 @@ set -e
 # Base
 SCRIPT_FILE_NAME="purge.sh"
 SCRIPT_DIR_PATH="${BASH_SOURCE:0:-${#SCRIPT_FILE_NAME}}"
-source "${SCRIPT_DIR_PATH}common.sh"
+source "${SCRIPT_DIR_PATH}_common.sh"
 assert_root
 
 
@@ -22,22 +22,22 @@ fi
 
 
 
-# Remove python 3 virtual environment
-print_step "Removing python 3 virtual environment"
+# Remove scons cache
+print_step "Removing scons cache"
 
-if ! rm -rf "./scooter-control/.venv/"; then
-    print_bold "Failed to remove python 3 virtual environment.\n"
+if ! find "./scooter-control/" | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf; then
+    print_bold "Failed to remove scons cache.\n"
 
     print_exit_step_and_exit
 fi
 
 
 
-# Remove python 3 cache directories
-print_step "Removing python 3 project cache"
+# Remove build directory
+print_step "Removing build directory"
 
-if ! find "./scooter-control/" | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf; then
-    print_bold "Failed to remove python 3 project cache.\n"
+if ! rm -rf "./scooter-control/build/"; then
+    print_bold "Failed to remove build directory.\n"
 
     print_exit_step_and_exit
 fi

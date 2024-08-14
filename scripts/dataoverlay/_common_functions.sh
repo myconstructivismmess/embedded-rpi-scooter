@@ -114,11 +114,11 @@ path_contains_remove_flag() {
 
 
 
-# Checks if the data_overlay directory exists.
-# Output: Prints an error message and exits if the data_overlay directory does not exist.
+# Checks if the dataoverlay directory exists.
+# Output: Prints an error message and exits if the dataoverlay directory does not exist.
 assert_data_overlay_directory_exists() {
-    if [ ! -d "data_overlay" ]; then
-        print_bold "\nThe 'data_overlay' directory does not exist.\n"
+    if [ ! -d "./dataoverlay/" ]; then
+        print_bold "\nThe 'dataoverlay' directory does not exist.\n"
 
         print_exit_step_and_exit
     fi
@@ -128,11 +128,11 @@ assert_data_overlay_directory_exists() {
 # Arguments: None
 # Output: Prints the status of each processed directory and whether it was deleted.
 purge_data_overlay() { # TODO: Improve error handling and security
-    # Check if the data_overlay directory exists
+    # Check if the dataoverlay directory exists
     assert_data_overlay_directory_exists
 
-    if [ ! -d "./data_overlay/.cache/" ]; then
-        print_bold "\nThe './data_overlay/.cache/' directory does not exist. Skiping the purge process.\n"
+    if [ ! -d "./dataoverlay/.cache/" ]; then
+        print_bold "\nThe './dataoverlay/.cache/' directory does not exist. Skiping the purge process.\n"
         return
     fi
 
@@ -141,11 +141,11 @@ purge_data_overlay() { # TODO: Improve error handling and security
         ""
     )
 
-    # Iterate through the directories in the data_overlay directory until all directories are processed
+    # Iterate through the directories in the dataoverlay directory until all directories are processed
     while [ "${#relative_directory_paths_to_process[@]}" -gt 0 ]; do
         # Get the source directory paths
         relative_directory_path_src="${relative_directory_paths_to_process[0]}"
-        absolute_directory_path_src="$(pwd)/data_overlay/.cache/${relative_directory_path_src}"
+        absolute_directory_path_src="$(pwd)/dataoverlay/.cache/${relative_directory_path_src}"
 
         # Get the destination directory paths
         relative_directory_path_dst="${relative_directory_path_src}"
@@ -185,7 +185,7 @@ purge_data_overlay() { # TODO: Improve error handling and security
 
 
         # Start printing directory information
-        print_bold "\nProcessing './data_overlay/.cache/${relative_directory_path_src}'\n"
+        print_bold "\nProcessing './dataoverlay/.cache/${relative_directory_path_src}'\n"
 
         # Print directory information
         print_bold "\tRemove flag: $(get_boolean_as_string "${remove_flag}")\n"
@@ -200,16 +200,16 @@ purge_data_overlay() { # TODO: Improve error handling and security
     done
 
     # Delete the cache directory
-    print_bold "\nDeleting the './data_overlay/.cache/' directory.\n"
-    rm -rf "./data_overlay/.cache/"
+    print_bold "\nDeleting the './dataoverlay/.cache/' directory.\n"
+    rm -rf "./dataoverlay/.cache/"
 }
-# Copies the data overlay by recursively processing the data_overlay directory, evaluating paths for environment properties, 
+# Copies the data overlay by recursively processing the dataoverlay directory, evaluating paths for environment properties, 
 # and copying files to their respective destinations, while creating necessary directories and handling remove flags.
 # Arguments: None
 # Output: Prints the status of each processed directory, whether directories or cache directories were created, 
 #         and the files that have been copied.
 copy_data_overlay() { # TODO: Improve error handling and security
-    # Check if the data_overlay directory exists
+    # Check if the dataoverlay directory exists
     assert_data_overlay_directory_exists
 
     # Create the array to store the relative directories paths to process
@@ -217,11 +217,11 @@ copy_data_overlay() { # TODO: Improve error handling and security
         ""
     )
 
-    # Iterate through the directories in the data_overlay directory until all directories are processed
+    # Iterate through the directories in the dataoverlay directory until all directories are processed
     while [ "${#relative_directory_paths_to_process[@]}" -gt 0 ]; do
         # Get the source directory paths
         relative_directory_path_src="${relative_directory_paths_to_process[0]}"
-        absolute_directory_path_src="$(pwd)/data_overlay/${relative_directory_path_src}"
+        absolute_directory_path_src="$(pwd)/dataoverlay/${relative_directory_path_src}"
 
         # Get the destination directory paths
         relative_directory_path_dst_eval="$(echo "${relative_directory_path_src}" | sed 's/{/${ENV_PROPERTY_/g')"
@@ -255,17 +255,17 @@ copy_data_overlay() { # TODO: Improve error handling and security
 
 
         # Create the destination cache directory if it does not exist
-        if [ -d "./data_overlay/.cache/${relative_directory_path_dst}" ]; then
+        if [ -d "./dataoverlay/.cache/${relative_directory_path_dst}" ]; then
             destination_cache_directory_exists=true
         else
-            mkdir -p "./data_overlay/.cache/${relative_directory_path_dst}"
+            mkdir -p "./dataoverlay/.cache/${relative_directory_path_dst}"
             destination_cache_directory_exists=false
         fi
 
 
         # Create the destination cache directory remove flag file if the remove flag is set
         if [ "${remove_flag}" = true ]; then
-            touch "./data_overlay/.cache/${relative_directory_path_dst}/.dataoverlayremove"
+            touch "./dataoverlay/.cache/${relative_directory_path_dst}/.dataoverlayremove"
         fi
 
 
@@ -276,7 +276,7 @@ copy_data_overlay() { # TODO: Improve error handling and security
 
 
         # Start printing directory information
-        print_bold "\nProcessing './data_overlay/${relative_directory_path_src}'\n"
+        print_bold "\nProcessing './dataoverlay/${relative_directory_path_src}'\n"
 
         # Print directory information
         print_bold "\tRemove flag: $(get_boolean_as_string "${remove_flag}")\n"
@@ -298,7 +298,7 @@ copy_data_overlay() { # TODO: Improve error handling and security
         printf "\n"
         
         # Print destination cache directory information
-        print_bold "\tDestination cache directory: './data_overlay/.cache/${relative_directory_path_dst}'  Exists: $(get_boolean_as_string "${destination_cache_directory_exists}")\n"
+        print_bold "\tDestination cache directory: './dataoverlay/.cache/${relative_directory_path_dst}'  Exists: $(get_boolean_as_string "${destination_cache_directory_exists}")\n"
         if [ "${destination_cache_directory_exists}" = false ]; then
             print_bold "\t\tCreated it.\n"
         fi

@@ -91,7 +91,7 @@ load_env_variables() {
 
         # Export the new variable with the same value
         export "${new_key}"="${value}"
-    done < <(read_file_without_comments .env)
+    done < <(read_file_without_comments ".env")
 
     # Disable automatic export
     set +a
@@ -129,7 +129,7 @@ print_step() {
     local step_newline_count_after=1
 
     # Check if the second parameter matches the format 0-infinite:0-infinite
-    if [[ "$step_newline_format" =~ ^[0-9]+:[0-9]+$ ]]; then
+    if [[ "${step_newline_format}" =~ ^[0-9]+:[0-9]+$ ]]; then
         step_newline_count_before="${step_newline_format%%:*}"
         step_newline_count_after="${step_newline_format##*:}"
     fi
@@ -207,7 +207,7 @@ select_option_with_abort() {
         local REPLY
         select choice in "${choices[@]}" "Abort"; do
             if [[ "${REPLY}" -lt 1 || "${REPLY}" -gt "$((${#choices[@]} + 1))" ]]; then
-                print_bold "Unknown choice \"${REPLY}\"\n\n"
+                print_bold "Unknown choice '${REPLY}'\n\n"
             elif [[ "${choice}" == "Abort" ]]; then
                 print_abort_step_and_exit
             elif [[ -n "${choice}" ]]; then
