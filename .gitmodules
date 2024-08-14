@@ -1,0 +1,3 @@
+[submodule "WiringPi"]
+	path = scooter-control/libs/wiringPi
+	url = https://github.com/WiringPi/WiringPi
