@@ -1,0 +1,17 @@
+# Import the static library from the lib subdirectory and the environment
+Import('scootercontrol_lib', 'env')
+
+# Create an environment
+visual_scooter_control_daemon_program_env = env.Clone()
+
+# Add wiringPi to the environment
+visual_scooter_control_daemon_program_env.Append(LIBS=['wiringPi'])
+
+# Auto-detect all .cpp files in visualscootercontrold and its subdirectories
+visual_scooter_control_daemon_program_sources = visual_scooter_control_daemon_program_env.Glob('**.cpp')
+
+# Build the executable and link with the static library
+visual_scooter_control_daemon_program = visual_scooter_control_daemon_program_env.Program('visualscootercontrold', visual_scooter_control_daemon_program_sources + [scootercontrol_lib])
+
+# Install the executable to the output directory (optional)
+Default(visual_scooter_control_daemon_program)

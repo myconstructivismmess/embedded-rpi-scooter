@@ -1,0 +1,17 @@
+# Import the environment
+Import('env')
+
+# Create an environment
+scootercontrol_lib_env = env.Clone()
+
+# Add wiringPi to the environment
+scootercontrol_lib_env.Append(LIBS=['wiringPi'])
+
+# Auto-detect all .cpp files in lib and its subdirectories
+scootercontrol_lib_sources = scootercontrol_lib_env.Glob('**.cpp')
+
+# Build the scootercontrol static library
+scootercontrol_lib = scootercontrol_lib_env.StaticLibrary('scootercontrol', scootercontrol_lib_sources)
+
+# Export the scootercontrol static library so that it can be used by other SCons scripts
+Export('scootercontrol_lib')

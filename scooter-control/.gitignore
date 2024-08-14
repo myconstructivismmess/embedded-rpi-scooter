@@ -1,5 +1,36 @@
-.venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-**/*.ext
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+/build/**
+src/build/**
+SCons.egg-info/
+
+# Translations
+*.mo
+*.pot
+
+# mypy
+.mypy_cache/
+
+# SCons files
+.sconsign*
+
+# Editor junk
+*.swp
+*.bkp
+*.bak
+*~
+!/test/Decider/switch-rebuild.py
+
+# Mac junk
+**/.DS_Store
+
+# SCons specific
+*.1

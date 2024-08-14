@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+# Ensure that the correct version of Python is being used
+EnsurePythonVersion(3, 4)
+
+# Import Environment
+env = Environment(
+  SCONS_CXX_STANDARD = 'c++23'
+)
+
+# Export the environment to make it available in SCsub scripts
+Export('env')
+
+# Include the scootercontrol library
+SConscript('scootercontrol_lib/SCsub', variant_dir='build/scootercontrol_lib', duplicate=0)
+
+# Include the daemon programs
+SConscript('audioscootercontrold/SCsub', variant_dir='build/audioscootercontrold', duplicate=0)
+SConscript('visualscootercontrold/SCsub', variant_dir='build/visualscootercontrold', duplicate=0)
