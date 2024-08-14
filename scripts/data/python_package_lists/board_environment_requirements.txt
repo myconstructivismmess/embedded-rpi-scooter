@@ -1,4 +1,0 @@
-adafruit-blinka
-adafruit-circuitpython-neopixel
-pyalsaaudio
-keyboard
