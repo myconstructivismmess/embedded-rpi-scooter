@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/scooter-control/daemons/audioscootercontrold/**",
+                "${workspaceFolder}/scooter-control/daemons/visualscootercontrold/**",
+                "${workspaceFolder}/scooter-control/libs/scootercontrol/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "intelliSenseMode": "linux-gcc-arm",
+            "cppStandard": "c++23"
+        }
+    ],
+    "version": 4
+}
