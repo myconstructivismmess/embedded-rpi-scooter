@@ -2,19 +2,30 @@
 #include "Timer.h"
 
 // Standard includes
-#include <time.h>
 #include <iostream>
 using std::cerr;
 using std::endl;
 
-vector<ElapsedTimeUpdatable*> Timer::_sUpdatables;
+chrono::time_point<chrono::high_resolution_clock> Timer::_sTime = chrono::high_resolution_clock::now();
+vector<ElapsedTimeUpdatable*> Timer::_sUpdatables = vector<ElapsedTimeUpdatable*>();
+
+double timePointToSeconds(const chrono::time_point<chrono::high_resolution_clock>& timePoint) {
+    // Get the duration since the epoch as a double in seconds
+    auto duration = timePoint.time_since_epoch();
+    return chrono::duration<double>(duration).count();
+}
+
+void Timer::setup() {
+    _updateTime();
+}
 
 void Timer::update() {
-    double lastTimeSeconds = _sTimeSeconds;
+    auto lastTimeSeconds = _sTime;
 
     _updateTime();
 
-    double elapsedTimeSeconds = _sTimeSeconds - lastTimeSeconds;
+    auto elapsedTime = _sTime - lastTimeSeconds;
+    double elapsedTimeSeconds = chrono::duration<double>(elapsedTime).count();
 
     // Simple check to make sure time is moving forward
     if (elapsedTimeSeconds < 0.0) {
@@ -28,14 +39,12 @@ void Timer::update() {
     }
 }
 
-double Timer::getTimeSeconds()
-{
-    return _sTimeSeconds;
+double Timer::getTimeSeconds() {
+    return timePointToSeconds(_sTime);
 }
 
 void Timer::_updateTime() {
-    time_t current_time = time(nullptr);
-    _sTimeSeconds = (double)current_time;
+    _sTime = chrono::high_resolution_clock::now();
 }
 
 void Timer::_registerElapsedTimeUpdatable(ElapsedTimeUpdatable* updatable) {
