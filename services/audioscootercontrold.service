@@ -1,0 +1,11 @@
+[Unit]
+Description=Service that handle Horn Sounds for Vehicle Safety Systems
+After=systemd-modules-load.service multi-user.target syslog.target
+
+[Service]
+Type=simple
+User=scootercontrol
+Group=scootercontrol
+SupplementaryGroups=audio gpio
+Restart=always
+RestartSec=1s

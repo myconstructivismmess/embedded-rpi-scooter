@@ -1,0 +1,11 @@
+[Unit]
+Description=Service that handle Turn Signals, Brake Lights and Night Lights for Vehicle Safety Systems
+After=systemd-modules-load.service multi-user.target syslog.target
+
+[Service]
+Type=simple
+User=scootercontrol
+Group=scootercontrol
+SupplementaryGroups=gpio
+Restart=always
+RestartSec=1s
