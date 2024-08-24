@@ -6,9 +6,11 @@ grep
 coreutils
 
 # Build tools
-python3
-scons
 gcc
+cmake
 
 # Libraries
 libsfml-dev
+
+# Debbuging
+vagrind
