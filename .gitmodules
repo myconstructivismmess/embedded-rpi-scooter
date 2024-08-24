@@ -1,3 +1,6 @@
 [submodule "WiringPi"]
 	path = scooter-control/libs/wiringPi
 	url = https://github.com/WiringPi/WiringPi
+[submodule "rpi_ws281x"]
+	path = scooter-control/libs/rpi_ws281x
+	url = https://github.com/jgarff/rpi_ws281x
