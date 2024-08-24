@@ -6,8 +6,10 @@
 // Standard includes
 #include <map>
 using std::map;
+
 #include <stdexcept>
 using std::invalid_argument;
+
 #include <iostream>
 using std::cerr;
 using std::cout;

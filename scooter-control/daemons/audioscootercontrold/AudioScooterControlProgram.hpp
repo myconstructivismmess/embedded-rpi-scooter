@@ -37,6 +37,7 @@ using std::regex_match;
 #include "button/Button.hpp"
 #include "button/interceptors/GPIOButtonInterceptor.hpp"
 #include "button/ButtonOptionType.h"
+#include "timers/Timer.hpp"
 
 // External includes
 #include "HornButtonHandler.hpp"
@@ -61,6 +62,9 @@ class AudioScooterControlProgram : public Program {
                 }),
                 _hornButtonInterceptor(pins.hornButtonPin)
         {
+            // Setup timer
+            Timer::setup();
+
             // Setup horn sounds
             HornSoundsLoader::setup(data.hornSoundCollectionPath);
 

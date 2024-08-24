@@ -16,7 +16,7 @@ using std::to_string;
 // Scooter control library includes
 #include "button/handlers/ButtonHandlerBase.hpp"
 #include "button/Button.hpp"
-#include "timers/Timer.h"
+#include "timers/Timer.hpp"
 
 // External includes
 #include "HornSoundPlayer.hpp"
@@ -121,7 +121,7 @@ class HornButtonHandler : public ButtonHandlerBase {
             }
         }
 
-        const float _maxShortPressDurationSeconds, _maxPressIntervalDurationSeconds;
+        float _maxShortPressDurationSeconds, _maxPressIntervalDurationSeconds;
 
         bool _value;
         unsigned int _pressCount;

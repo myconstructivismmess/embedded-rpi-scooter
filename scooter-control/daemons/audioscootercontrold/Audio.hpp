@@ -18,6 +18,9 @@ class Audio {
             buffer.loadFromFile(src);
             sound.setBuffer(buffer);
         }
+        ~Audio() {
+            sound.stop();
+        }
         void play() {
             sound.play();       // Play queued audio
         }
