@@ -4,7 +4,7 @@ set -e
 
 
 # Base
-SCRIPT_FILE_NAME="build.sh"
+SCRIPT_FILE_NAME="build-debug.sh"
 SCRIPT_DIR_PATH="${BASH_SOURCE:0:-${#SCRIPT_FILE_NAME}}"
 source "${SCRIPT_DIR_PATH}_common.sh"
 assert_root
@@ -41,13 +41,13 @@ if ! cd "./build/"; then
     print_bold "Failed to change directory to './build/'.\n"
 fi
 
-if ! cmake ..; then
+if ! cmake -DCMAKE_BUILD_TYPE=Debug ..; then
     print_bold "Failed to configure the project with CMake.\n"
     
     print_exit_step_and_exit
 fi
 
-if ! cmake --build "./" --target all; then
+if ! cmake --build "./" --target all; then 
     print_bold "Failed to build the project.\n"
 
     print_exit_step_and_exit
