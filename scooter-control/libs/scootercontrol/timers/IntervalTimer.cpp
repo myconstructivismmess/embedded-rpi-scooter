@@ -1,5 +1,5 @@
-// Class include
-#include "IntervalTimer.h"
+// Class Definition
+#include "IntervalTimer.hpp"
 
 IntervalTimer::IntervalTimer()
     : ElapsedTimeUpdatable()
@@ -7,13 +7,11 @@ IntervalTimer::IntervalTimer()
     reset();
 }
 
-void IntervalTimer::reset()
-{
+void IntervalTimer::reset() {
     _elapsedTimeSeconds = 0;
 }
 
-int IntervalTimer::consumeAvailableTimeBlocks(double timeBlockDurationSeconds, int maxBlocksConsumed)
-{
+int IntervalTimer::consumeAvailableTimeBlocks(double timeBlockDurationSeconds, int maxBlocksConsumed) {
     int count = _elapsedTimeSeconds / timeBlockDurationSeconds;
     if (maxBlocksConsumed != -1 && count > maxBlocksConsumed)
     {
@@ -25,7 +23,6 @@ int IntervalTimer::consumeAvailableTimeBlocks(double timeBlockDurationSeconds, i
     return count;
 }
 
-void IntervalTimer::update(double elapsedTimeSeconds)
-{
+void IntervalTimer::update(double elapsedTimeSeconds) {
     _elapsedTimeSeconds += elapsedTimeSeconds;
 }

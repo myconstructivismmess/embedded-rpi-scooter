@@ -3,19 +3,14 @@
 
 class ButtonInterceptorBase {
     public:
-        ButtonInterceptorBase(bool reverseSignal = false)
-            : _reverseSignal(reverseSignal) {}
+        ButtonInterceptorBase(bool reverseSignal = false);
         virtual ~ButtonInterceptorBase() = default;
 
-        bool isPressed() {
-            return _reverseSignal
-                ? !_isPressed()
-                : _isPressed();
-        }
+        bool isPressed();
     protected:
         virtual bool _isPressed() = 0;
     private:
-        const bool _reverseSignal;
+        bool _reverseSignal;
 };
 
 #endif

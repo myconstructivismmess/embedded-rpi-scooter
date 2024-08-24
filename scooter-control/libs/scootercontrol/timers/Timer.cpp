@@ -1,16 +1,11 @@
-// Class include
-#include "Timer.h"
+// Class Definition
+#include "Timer.hpp"
 
-// Standard includes
-#include <iostream>
-using std::cerr;
-using std::endl;
-
-chrono::time_point<chrono::high_resolution_clock> Timer::_sTime = chrono::high_resolution_clock::now();
-vector<ElapsedTimeUpdatable*> Timer::_sUpdatables = vector<ElapsedTimeUpdatable*>();
-
+// Functions
+/**
+ * @brief Convert a time point to a double in seconds.
+*/
 double timePointToSeconds(const chrono::time_point<chrono::high_resolution_clock>& timePoint) {
-    // Get the duration since the epoch as a double in seconds
     auto duration = timePoint.time_since_epoch();
     return chrono::duration<double>(duration).count();
 }
@@ -20,6 +15,7 @@ void Timer::setup() {
 }
 
 void Timer::update() {
+    // Calculate the elapsed time
     auto lastTimeSeconds = _sTime;
 
     _updateTime();
@@ -58,3 +54,6 @@ void Timer::_unregisterElapsedTimeUpdatable(ElapsedTimeUpdatable* updatable) {
         }
     }
 }
+
+chrono::time_point<chrono::high_resolution_clock> Timer::_sTime = chrono::high_resolution_clock::now();
+vector<ElapsedTimeUpdatable*> Timer::_sUpdatables = vector<ElapsedTimeUpdatable*>();

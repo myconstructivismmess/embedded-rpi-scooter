@@ -1,11 +1,9 @@
-// Class include
-#include "ElapsedTimeUpdatable.h"
+// Class Definition
+#include "ElapsedTimeUpdatable.hpp"
 
-ElapsedTimeUpdatable::ElapsedTimeUpdatable()
-{
+ElapsedTimeUpdatable::ElapsedTimeUpdatable() {
     Timer::_registerElapsedTimeUpdatable(this);
 }
-ElapsedTimeUpdatable::~ElapsedTimeUpdatable()
-{
+ElapsedTimeUpdatable::~ElapsedTimeUpdatable() {
     Timer::_unregisterElapsedTimeUpdatable(this);
 }

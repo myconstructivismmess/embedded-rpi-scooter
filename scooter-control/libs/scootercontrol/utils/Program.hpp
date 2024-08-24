@@ -5,54 +5,67 @@
 
 // Standard includes
 #include <csignal>
+
 #include <iostream>
 using std::cout;
 using std::endl;
 
-// External includes
-#include "../timers/Timer.h"
+#include <stdexcept>
+using std::runtime_error;
 
+// External includes
+#include "../timers/Timer.hpp"
+
+/**
+ * @brief Program class use to abstract the main loop of the program.
+ * 
+ * This class provides functionality to run the main loop of the program and update the program at regular intervals as wall as updating the Timer.
+ * Only one instance of this class should be created and run at a time.
+*/
 class Program {
     public:
+        Program();
+        ~Program();
+
         /**
-         * @brief Program class use to abstract the main loop of the program.
+         * @brief Run one iteration of the program.
         */
-        Program() {
-            _shouldExit = false;
-        }
+        void update();
 
-        void update() {
-            Timer::update();
-            _update();
-        }
+        /**
+         * @brief Run the program until the program is stopped.
+        */
+        void runUntilStopped();
 
-        void runUntilStopped() {
-            while (!_shouldExit) {
-                update();
-            }
-        }
+        /**
+         * @brief Exit the program.
+        */
+        void exit();
 
-        static void exit() {
-            _shouldExit = true;
-        }
+        /**
+         * @brief Reset the shouldExit flag to false.
+        */
+        void resetExit();
         
-        static void registerSignalHandlers() {
-            signal(SIGINT, _onSignal);
-            signal(SIGTERM, _onSignal);
-            signal(SIGKILL, _onSignal);
-        }
+        /**
+         * @brief Register signal handlers for SIGINT, SIGTERM, and SIGKILL.
+        */
+        void registerSignalHandlers();
+        /**
+         * @brief Unregister signal handlers for SIGINT, SIGTERM, and SIGKILL.
+        */
+        void unregisterSignalHandlers();
     protected:
         virtual void _update() = 0;
     private:
-        static void _onSignal(int sigNo) {
-            cout << endl << "Received signal " << sigNo << " Exiting..." << endl;
+        /**
+         * @brief Signal handler for SIGINT, SIGTERM, and SIGKILL.
+        */
+        static void _onSignal(int sigNo);
 
-            exit();
-        }
+        static Program* _instance;
 
-        static bool _shouldExit;
+        bool _shouldExit = false;
 };
-
-bool Program::_shouldExit = false;
 
 #endif

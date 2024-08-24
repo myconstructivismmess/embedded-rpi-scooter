@@ -9,28 +9,10 @@ class ButtonHandlerBase {
     friend class Button;
 
     public:
-        void enable() {
-            if (!_enabled) {
-                _enabled = true;
-                _onEnabled();
-            }
-        }
-        void disable() {
-            if (_enabled) {
-                _enabled = false;
-                _onDisabled();
-            }
-        }
-        void setState(bool enabled) {
-            if (enabled) {
-                enable();
-            } else {
-                disable();
-            }
-        }
-        bool isEnabled() {
-            return _enabled;
-        }
+        void enable();
+        void disable();
+        void setState(bool enabled);
+        bool isEnabled();
     protected:
         virtual ~ButtonHandlerBase() = default;
 

@@ -10,21 +10,34 @@ using std::vector;
 #include <chrono>
 namespace chrono = std::chrono;
 
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
+
 // Forward declaration of ElapsedTimeUpdatable
 class ElapsedTimeUpdatable;
 
 // External includes
-#include "ElapsedTimeUpdatable.h"
+#include "ElapsedTimeUpdatable.hpp"
 
+/**
+ * @brief Timer class used to track time and update registered updatables.
+*/
 class Timer {
     friend class ElapsedTimeUpdatable;
     
     public:
+        /**
+         * @brief Setup the timer.
+        */
         static void setup();
+
         /**
          * @brief Update the timer and all registered updatables.
         */
         static void update();
+
         /**
          * @brief Get the time of the last timer update in seconds.
          * 

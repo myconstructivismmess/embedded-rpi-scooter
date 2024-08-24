@@ -6,32 +6,13 @@
 
 class LatchButtonHandler : public ButtonHandlerBase {
     public:
-        LatchButtonHandler(void(*onValueChangeCallback)(bool), bool startValue = false, bool switchOnLowered = false)
-            : _onValueChangeCallback(onValueChangeCallback),
-              _switchOnLowered(switchOnLowered),
-              _value(startValue) {}
+        LatchButtonHandler(void(*onValueChangeCallback)(bool), bool startValue = false, bool switchOnLowered = false);
 
-        bool getValue() {
-            return _value;
-        }
-        void setValue(bool value, bool triggerCallback = true) {
-            _value = value;
-
-            if (triggerCallback) {
-                _onValueChangeCallback(_value);
-            }
-        }
+        bool getValue();
+        void setValue(bool value, bool triggerCallback = true);
     protected:
-        void _onValueRaised() override {
-            if (isEnabled() && !_switchOnLowered) {
-                setValue(!_value);
-            }
-        }
-        void _onValueLowered() override {
-            if (isEnabled() && _switchOnLowered) {
-                setValue(!_value);
-            }
-        }
+        void _onValueRaised() override;
+        void _onValueLowered() override;
     private:
         void(*_onValueChangeCallback)(bool);
         const bool _switchOnLowered;
