@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build visualscootercontrold",
+            "type": "shell",
+            "command": "sudo ${workspaceFolder}/scripts/build-visualscootercontrold.sh",
+            "group": "build"
+        },
+        {
+            "label": "build visualscootercontrold debug",
+            "type": "shell",
+            "command": "sudo ${workspaceFolder}/scripts/build-visualscootercontrold-debug.sh",
+            "group": "build"
+        },
+        {
+            "label": "build audioscootercontrold",
+            "type": "shell",
+            "command": "sudo ${workspaceFolder}/scripts/build-audioscootercontrold.sh",
+            "group": "build"
+        },
+        {
+            "label": "build audioscootercontrold debug",
+            "type": "shell",
+            "command": "sudo ${workspaceFolder}/scripts/build-audioscootercontrold-debug.sh",
+            "group": "build"
+        },
+        {
+            "label": "build all",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/build.sh",
+            "group": "build"
+        },
+        {
+            "label": "build all debug",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/build-debug.sh",
+            "group": "build"
+        }
+    ]
+}
