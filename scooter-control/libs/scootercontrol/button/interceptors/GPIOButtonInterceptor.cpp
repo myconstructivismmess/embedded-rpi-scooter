@@ -10,10 +10,6 @@ GPIOButtonInterceptor::GPIOButtonInterceptor(int gpioPinNumber, bool reverseSign
     : ButtonInterceptorBase(reverseSignal),
       _gpioPinNumber(gpioPinNumber)
 {
-    if (wiringPiSetupGpio() == -1) {
-        throw runtime_error("Failed to setup GPIO");
-    }
-
     bool isValid = false;
     for (unsigned int i = 0; i < sizeof(VALID_GPIO_PIN_NUMBERS) / sizeof(int); i++) {
         if (gpioPinNumber == VALID_GPIO_PIN_NUMBERS[i]) {
@@ -24,6 +20,10 @@ GPIOButtonInterceptor::GPIOButtonInterceptor(int gpioPinNumber, bool reverseSign
 
     if (!isValid) {
         throw invalid_argument("Invalid GPIO pin number");
+    }
+
+    if (wiringPiSetupGpio() == -1) {
+        throw runtime_error("Failed to setup GPIO");
     }
 
     pinMode(_gpioPinNumber, INPUT);
