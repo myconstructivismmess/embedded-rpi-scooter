@@ -54,5 +54,52 @@ done < <(find "${SCRIPT_DIR_PATH}" -type f -name "*.sh" -print0)
 
 
 
+# Set working location to project root directory
+print_step "Setting working location to project root directory"
+
+if ! cd_to_project_root "${SCRIPT_DIR_PATH}"; then
+    print_bold "Failed to set working location to project root directory.\n"
+    
+    print_exit_step_and_exit
+fi
+
+# Save the absolute path of the project root directory for later use
+ABSOLUTE_PROJECT_ROOT_PATH="$(realpath .)"
+
+
+
+# Set working location to project root directory
+print_step "Setting working location to wiringPi directory"
+
+if ! cd "./scooter-control/libs/wiringPi"; then
+    print_bold "Failed to set working location to wiringPi directory.\n"
+    
+    print_exit_step_and_exit
+fi
+
+
+
+# Compiling wiringPi
+print_step "Compiling wiringPi" "1:2"
+
+if ! ./build; then
+    print_bold "Failed to compile wiringPi library.\n"
+
+    print_exit_step_and_exit
+fi
+
+
+
+# Set working location to project root directory
+# print_step "Setting working location to project root directory"
+
+# if ! cd "${ABSOLUTE_PROJECT_ROOT_PATH}"; then
+#     print_bold "Failed to set working location to project root directory.\n"
+    
+#     print_exit_step_and_exit
+# fi
+
+
+
 # Finishing
 print_finish_step_and_exit
