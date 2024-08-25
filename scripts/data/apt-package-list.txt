@@ -13,4 +13,4 @@ cmake
 libsfml-dev
 
 # Debbuging
-vagrind
+valgrind
