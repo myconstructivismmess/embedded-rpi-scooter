@@ -14,25 +14,15 @@ using sf::SoundBuffer;
 
 class Audio {
     public:
-        Audio(string src) {
-            buffer.loadFromFile(src);
-            sound.setBuffer(buffer);
-        }
-        ~Audio() {
-            sound.stop();
-        }
-        void play() {
-            sound.play();       // Play queued audio
-        }
-        void stop() {
-            sound.stop();
-        }
-        void setVolume(float volume) {
-            sound.setVolume(volume);
-        }
-        void setLoop(bool loop) {
-            sound.setLoop(loop);
-        }
+        Audio(string src);
+        ~Audio();
+
+        void play();
+        void stop();
+
+        void setVolume(float volume);
+        
+        void setLoop(bool loop);
     private:
         SoundBuffer buffer;
         Sound sound;

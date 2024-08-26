@@ -1,11 +1,21 @@
 # Add audioscootercontrold executable
 add_executable(audioscootercontrold
     main.cpp
+
     AudioScooterControlProgram.hpp
+    AudioScooterControlProgram.cpp
+
     HornButtonHandler.hpp
+    HornButtonHandler.cpp
+
     HornSoundPlayer.hpp
+    HornSoundPlayer.cpp
+
     HornSoundsLoader.hpp
+    HornSoundsLoader.cpp
+
     Audio.hpp
+    Audio.cpp
 )
 
 # Set the C++ standard to C++23
