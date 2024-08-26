@@ -7,10 +7,8 @@ using std::make_unique;
 #include <vector>
 using std::vector;
 
-#include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
+// Scooter control library includes
+#include "button/ButtonOptionType.h"
 
 // External includes
 #include "HornSoundsLoader.hpp"

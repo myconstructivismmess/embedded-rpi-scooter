@@ -1,3 +1,7 @@
+// Standard includes
+#include <string>
+using std::string;
+
 // External includes
 #include "AudioScooterControlProgram.hpp"
 
@@ -11,12 +15,14 @@
 
 // Main function
 int main() {
+    const string HORN_SOUND_COLLECTION_PATH_STR = HORN_SOUND_COLLECTION_PATH;
+
     AudioScooterControlProgram program(
         AudioScooterControlProgram::Pins {
             hornButtonPin: HORN_BUTTON_PIN
         },
         AudioScooterControlProgram::Properties {
-            hornSoundCollectionPath: HORN_SOUND_COLLECTION_PATH,
+            hornSoundCollectionPath: HORN_SOUND_COLLECTION_PATH_STR,
             hornMaxShortPressDurationSeconds: HORN_MAX_SHORT_PRESS_DURATION_SECONDS,
             hornMaxPressIntervalDurationSeconds: HORN_MAX_PRESS_INTERVAL_DURATION_SECONDS
         }

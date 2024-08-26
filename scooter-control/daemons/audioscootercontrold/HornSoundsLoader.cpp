@@ -14,7 +14,6 @@ using std::exception;
 using std::regex_match;
 
 // External includes
-#include "HornSoundPlayer.hpp"
 #include "Audio.hpp"
 
 void HornSoundsLoader::setup(string hornSoundCollectionPath) {

@@ -14,6 +14,9 @@ using std::regex;
 namespace fs = std::filesystem;
 using fs::path;
 
+// External includes
+#include "HornSoundPlayer.hpp"
+
 class HornSoundsLoader {
     public:
         static void setup(string hornSoundCollectionPath);

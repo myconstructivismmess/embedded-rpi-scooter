@@ -7,10 +7,12 @@
 #include <memory>
 using std::unique_ptr;
 
+#include <string>
+using std::string;
+
 // Scooter control library includes
 #include "utils/Program.hpp"
 #include "button/Button.hpp"
-#include "button/ButtonOptionType.h"
 #include "button/interceptors/GPIOButtonInterceptor.hpp"
 
 // External includes
