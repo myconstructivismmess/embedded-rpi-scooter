@@ -54,13 +54,13 @@ class Button {
                 _value = newValue;
 
                 if (_value) {
-                    _handlerPtr->_onValueRaised();
+                    _handlerPtr->onValueRaised();
                 } else {
-                    _handlerPtr->_onValueLowered();
+                    _handlerPtr->onValueLowered();
                 }
             }
 
-            _handlerPtr->_onUpdate();
+            _handlerPtr->onUpdate();
         }
 
         void enableHandler() {

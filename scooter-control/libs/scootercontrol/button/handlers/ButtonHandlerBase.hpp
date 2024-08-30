@@ -24,6 +24,11 @@ class ButtonHandlerBase {
         
         virtual void _onUpdate() {};
     private:
+        void onValueRaised();
+        void onValueLowered();
+
+        void onUpdate();
+
         bool _enabled = true;
 };
 

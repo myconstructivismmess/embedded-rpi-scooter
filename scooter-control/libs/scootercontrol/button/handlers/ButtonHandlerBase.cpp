@@ -23,3 +23,14 @@ void ButtonHandlerBase::setState(bool enabled) {
 bool ButtonHandlerBase::isEnabled() {
     return _enabled;
 }
+
+void ButtonHandlerBase::onValueRaised() {
+    _onValueRaised();
+}
+void ButtonHandlerBase::onValueLowered() {
+    _onValueLowered();
+}
+
+void ButtonHandlerBase::onUpdate() {
+    _onUpdate();
+}
