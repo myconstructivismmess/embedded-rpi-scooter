@@ -2,11 +2,23 @@
 add_executable(visualscootercontrold
     main.cpp
 
-    VisualScooterControlProgram.h
+    VisualScooterControlProgram.hpp
     VisualScooterControlProgram.cpp
 
     Color.hpp
     Color.cpp
+
+    LedController.hpp
+    LedController.cpp
+
+    LedLayer.hpp
+    LedLayer.cpp
+
+    led_layers/SolidColorLedLayer.hpp
+    led_layers/SolidColorLedLayer.cpp
+
+    led_layers/TurnLightLedLayer.hpp
+    led_layers/TurnLightLedLayer.cpp
 )
 
 # Set the C++ standard to C++23
