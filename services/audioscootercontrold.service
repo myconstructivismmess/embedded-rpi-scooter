@@ -1,11 +1,20 @@
 [Unit]
 Description=Service that handle Horn Sounds for Vehicle Safety Systems
-After=systemd-modules-load.service multi-user.target syslog.target
 
 [Service]
-Type=simple
 User=scootercontrol
 Group=scootercontrol
 SupplementaryGroups=audio gpio
+Environment="PATH=$PATH"
+ExecStart=/usr/bin/audioscootercontrold
+WorkingDirectory=/scooter-control/
+
 Restart=always
 RestartSec=1s
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=audioscootercontrold
+
+[Install]
+WantedBy=default.target
