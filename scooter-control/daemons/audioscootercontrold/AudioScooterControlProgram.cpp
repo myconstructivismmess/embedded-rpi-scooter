@@ -19,7 +19,7 @@ AudioScooterControlProgram::AudioScooterControlProgram(Pins pins, Properties pro
           maxShortPressDurationSeconds: properties.hornMaxShortPressDurationSeconds,
           maxPressIntervalDurationSeconds: properties.hornMaxPressIntervalDurationSeconds
       }),
-      _hornButtonInterceptor(pins.hornButtonPin)
+      _hornButtonInterceptor(pins.hornButtonPin, false, true)
 {
     // Setup timer
     Timer::setup();
