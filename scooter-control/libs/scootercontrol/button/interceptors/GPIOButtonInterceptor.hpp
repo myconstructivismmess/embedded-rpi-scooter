@@ -11,13 +11,14 @@ using std::invalid_argument;
 
 class GPIOButtonInterceptor : public ButtonInterceptorBase {
     public:
-        GPIOButtonInterceptor(int gpioPinNumber, bool reverseSignal = false);
+        GPIOButtonInterceptor(int gpioPinNumber, bool reverseSignal = false, bool pullUpResistance = false);
         
         int getGpioPinNumber();
     protected:
         bool _isPressed() override;
     private:
         int _gpioPinNumber;
+        bool _pullUpResistance;
 
         static const int VALID_GPIO_PIN_NUMBERS[16];
 };

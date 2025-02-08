@@ -6,9 +6,10 @@
 
 const int GPIOButtonInterceptor::VALID_GPIO_PIN_NUMBERS[] = { 4, 5, 6, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 
-GPIOButtonInterceptor::GPIOButtonInterceptor(int gpioPinNumber, bool reverseSignal)
+GPIOButtonInterceptor::GPIOButtonInterceptor(int gpioPinNumber, bool reverseSignal, bool pullUpResistance)
     : ButtonInterceptorBase(reverseSignal),
-      _gpioPinNumber(gpioPinNumber)
+      _gpioPinNumber(gpioPinNumber),
+      _pullUpResistance(pullUpResistance)
 {
     bool isValid = false;
     for (unsigned int i = 0; i < sizeof(VALID_GPIO_PIN_NUMBERS) / sizeof(int); i++) {
@@ -27,7 +28,12 @@ GPIOButtonInterceptor::GPIOButtonInterceptor(int gpioPinNumber, bool reverseSign
     }
 
     pinMode(_gpioPinNumber, INPUT);
-    pullUpDnControl(_gpioPinNumber, PUD_DOWN);
+
+    if (_pullUpResistance) {
+        pullUpDnControl(_gpioPinNumber, PUD_UP);
+    } else {
+        pullUpDnControl(_gpioPinNumber, PUD_DOWN);
+    }
 }
         
 int GPIOButtonInterceptor::getGpioPinNumber() {
@@ -35,5 +41,9 @@ int GPIOButtonInterceptor::getGpioPinNumber() {
 }
 
 bool GPIOButtonInterceptor::_isPressed() {
-    return digitalRead(_gpioPinNumber) == HIGH;
+    if (_pullUpResistance) {
+        return digitalRead(_gpioPinNumber) == LOW;
+    } else {
+        return digitalRead(_gpioPinNumber) == HIGH;
+    }
 }
