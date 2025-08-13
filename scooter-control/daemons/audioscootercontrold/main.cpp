@@ -8,8 +8,8 @@ using std::string;
 // Constants
 #define HORN_SOUND_COLLECTION_PATH               "/usr/share/scootercontrol/horn/sounds/"
 
-#define HORN_MAX_SHORT_PRESS_DURATION_SECONDS    1.0
-#define HORN_MAX_PRESS_INTERVAL_DURATION_SECONDS 0.3
+#define HORN_MAX_SHORT_PRESS_DURATION_SECONDS    0.5
+#define HORN_MAX_PRESS_INTERVAL_DURATION_SECONDS 0.45
 
 #define HORN_BUTTON_PIN                          26
 
