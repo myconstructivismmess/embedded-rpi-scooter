@@ -30,7 +30,7 @@ void HornButtonHandler::_onValueLowered() {
 }
         
 void HornButtonHandler::_onUpdate() {
-    std::cout << "Press count: " << _pressCount << std::end;
+    std::cout << "Press count: " << _pressCount << std::endl;
 
     if (_pressCount <= 0) {
         return;
