@@ -6,6 +6,8 @@
 // External includes
 #include "HornSoundPlayer.hpp"
 
+#include <iostream>
+
 HornButtonHandler::HornButtonHandler(Properties properties)
     : ButtonHandlerBase(),
       _maxShortPressDurationSeconds(properties.maxShortPressDurationSeconds),
@@ -28,6 +30,8 @@ void HornButtonHandler::_onValueLowered() {
 }
         
 void HornButtonHandler::_onUpdate() {
+    std::cout << "Press count: " << _pressCount << std::end;
+
     if (_pressCount <= 0) {
         return;
     }
